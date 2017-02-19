@@ -195,11 +195,11 @@ __blink.js__ uses ES6 syntax/features that are __not__ transpiled or polyfilled 
 
 [WebGL 2.0 Reference card](https://www.khronos.org/files/webgl20-reference-guide.pdf) - PDF containing all GLSL ES 3.00 functions and variables.
 
-[npm-badge]: https://img.shields.io/npm/v/rollup.svg
-[npm-badge-url]: https://www.npmjs.com/package/rollup
-[license-badge]: https://img.shields.io/npm/l/rollup.svg
+[npm-badge]: https://img.shields.io/npm/v/blinkjs.svg
+[npm-badge-url]: https://www.npmjs.com/package/blinkjs
+[license-badge]: https://img.shields.io/npm/l/blinkjs.svg
 [license-badge-url]: ./LICENSE
-[dependencies-badge]: https://img.shields.io/david/rollup/rollup.svg
-[dependencies-badge-url]: https://david-dm.org/rollup/rollup
-[devDependencies-badge]: https://img.shields.io/david/dev/rollup/rollup.svg
-[devDependencies-badge-url]: https://david-dm.org/rollup/rollup
+[dependencies-badge]: https://img.shields.io/david/blinkjs/blinkjs.svg
+[dependencies-badge-url]: https://david-dm.org/blinkjs/blinkjs
+[devDependencies-badge]: https://img.shields.io/david/dev/blinkjs/blinkjs.svg
+[devDependencies-badge-url]: https://david-dm.org/blinkjs/blinkjs
