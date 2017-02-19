@@ -69,7 +69,7 @@ let kernel = new blink.Kernel({
 }, `void main() {
         lowp uvec4 color = texture(in_rgba, bl_UV);
         mediump uint grey = (color.r + color.g + color.b) / 3u;
-        out_rgba = uvec4(grey, grey, grey, color.a);
+        out_rgba = uvec4(uvec3(grey), color.a);
     }`)
 
 kernel.exec()
@@ -195,11 +195,11 @@ __blink.js__ uses ES6 syntax/features that are __not__ transpiled or polyfilled 
 
 [WebGL 2.0 Reference card](https://www.khronos.org/files/webgl20-reference-guide.pdf) - PDF containing all GLSL ES 3.00 functions and variables.
 
-[npm-badge]: https://img.shields.io/npm/v/blinkjs.svg
-[npm-badge-url]: https://www.npmjs.com/package/blinkjs
-[license-badge]: https://img.shields.io/npm/l/blinkjs.svg
+[npm-badge]: https://img.shields.io/npm/v/blink.js.svg
+[npm-badge-url]: https://www.npmjs.com/package/blink.js
+[license-badge]: https://img.shields.io/npm/l/blink.js.svg
 [license-badge-url]: ./LICENSE
-[dependencies-badge]: https://img.shields.io/david/blinkjs/blinkjs.svg
-[dependencies-badge-url]: https://david-dm.org/blinkjs/blinkjs
-[devDependencies-badge]: https://img.shields.io/david/dev/blinkjs/blinkjs.svg
-[devDependencies-badge-url]: https://david-dm.org/blinkjs/blinkjs
+[dependencies-badge]: https://img.shields.io/david/blink.js/blink.js.svg
+[dependencies-badge-url]: https://david-dm.org/frzi/blink.js
+[devdependencies-badge]: https://img.shields.io/david/dev/frzi/blinkjs.svg
+[devdependencies-badge-url]: https://david-dm.org/frzi/blink.js
