@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 144">
+<view id="check-color" viewBox="0 0 24 24"/>
+<view id="warning-color" viewBox="0 24 24 24"/>
+<view id="bad-color" viewBox="0 48 24 24"/>
+<view id="check-white" viewBox="0 72 24 24"/>
+<view id="warning-white" viewBox="0 96 24 24"/>
+<view id="bad-white" viewBox="0 120 24 24"/>
+<line fill="none" stroke="#DB3A2C" stroke-width="3" x1="4.5" y1="67.5" x2="19.5" y2="52.5"/>
+<path fill="#FC9700" d="M12,25L0,48h24L12,25z M13.2,34.8l-0.5,5h-1.5l-0.5-5H13.2z M13,43.8h-2.1v-2H13V43.8z"/>
+<polyline fill="none" stroke="#00CC4E" stroke-width="3" points="2.5,12.2 8.7,18.4 21.5,5.6 "/>
+<line fill="none" stroke="#FFFFFF" stroke-width="3" x1="4.5" y1="139.5" x2="19.5" y2="124.5"/>
+<path fill="#FFFFFF" d="M12,97L0,120h24L12,97z M13.2,106.8l-0.5,5h-1.5l-0.5-5H13.2z M13,115.8h-2.1v-2H13V115.8z"/>
+<polyline fill="none" stroke="#FFFFFF" stroke-width="3" points="2.5,84.2 8.7,90.4 21.5,77.6 "/>
+</svg>
