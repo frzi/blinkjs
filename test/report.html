@@ -216,9 +216,7 @@
 	</body>
 	<script>
 		(() => {
-			document.getElementById('version').textContent = 'v' + blink.VERSION
-
-			if (!blink.context) {
+			if (!window.blink || !blink.context) {
 				document.getElementById('blinkno').style.display = 'block'
 				return
 			}
@@ -488,7 +486,10 @@
 			//
 
 			function readDevice() {
-				const { device } = blink
+				const { device, VERSION } = blink
+
+				document.getElementById('version').textContent = 'v' + VERSION
+
 				const map = {
 					glslversion: device.glslVersion,
 					maxcolorattachments: device.maxColorAttachments,
@@ -518,7 +519,7 @@
 						const vector = [1, 2, 4][tId]
 
 						let buffer = new blink.Buffer({
-							alloc: 64 ** 2 * 4, // At most 64kb.
+							alloc: 64 * 64 * 4, // At most 64kb.
 							vector, type
 						})
 

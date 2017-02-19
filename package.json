@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "GPGPU for browsers, powered by WebGL 2.0.",
   "main": "dist/blink.js",
-  "homepage": "https://github.com/frzi/blink.js",
+  "homepage": "https://github.com/frzi/blinkjs",
   "repository": "frzi/blink.js",
   "scripts": {
     "dev": "rollup -c --dev -w",
@@ -21,7 +21,7 @@
   "author": "frzi",
   "license": "MIT",
   "devDependencies": {
-    "babili": "0.0.10",
+    "babili": "0.0.11",
     "preprocessor": "^1.4.0",
     "rollup": "^0.41.4",
     "rollup-watch": "^3.2.2"

@@ -6,7 +6,7 @@ blink.js
 [![Latest NPM release][npm-badge]][npm-badge-url]
 [![License][license-badge]][license-badge-url]
 [![Dependencies][dependencies-badge]][dependencies-badge-url]
-[![Dev Dependencies][devDependencies-badge]][devDependencies-badge-url]
+[![Dev Dependencies][devdependencies-badge]][devdependencies-badge-url]
 
 With WebCL being practically dead and compute shaders still a dream away, it's time to take matters in our own hands. __blink.js__ exploits the power of WebGL 2.0 to provide web developers with an easy-to-use library for GPGPU computing in the browser.
 
@@ -199,7 +199,7 @@ __blink.js__ uses ES6 syntax/features that are __not__ transpiled or polyfilled 
 [npm-badge-url]: https://www.npmjs.com/package/blink.js
 [license-badge]: https://img.shields.io/npm/l/blink.js.svg
 [license-badge-url]: ./LICENSE
-[dependencies-badge]: https://img.shields.io/david/blink.js/blink.js.svg
-[dependencies-badge-url]: https://david-dm.org/frzi/blink.js
+[dependencies-badge]: https://img.shields.io/david/frzi/blinkjs.svg
+[dependencies-badge-url]: https://david-dm.org/frzi/blinkjs
 [devdependencies-badge]: https://img.shields.io/david/dev/frzi/blinkjs.svg
-[devdependencies-badge-url]: https://david-dm.org/frzi/blink.js
+[devdependencies-badge-url]: https://david-dm.org/frzi/blinkjs
