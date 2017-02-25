@@ -795,7 +795,7 @@ function prepareFragmentShader(inputs, outputDescriptors, source) {
 const VERSION = {
 	major: 0,
 	minor: 1,
-	patch: 1,
+	patch: 2,
 	toString() { return `${this.major}.${this.minor}.${this.patch}` }
 };
 

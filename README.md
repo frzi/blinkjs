@@ -1,7 +1,7 @@
 blink.js
 ========
 
-> Easy GPGPU in the browser, powered by WebGL 2.0.
+> Easy GPGPU on the web, powered by WebGL 2.0.
 
 [![Latest NPM release][npm-badge]][npm-badge-url]
 [![License][license-badge]][license-badge-url]
@@ -13,7 +13,6 @@ __blink.js__ (not to be confused with [Blink](https://www.chromium.org/blink), t
 Please note: __blink.js__ uses its own WebGL 2.0 context. Which means it's not pluggable with other WebGL frameworks.
 
 ## Table of contents
-- [About](#about)
 - [Quickstart](#quickstart)
 - [Usage](#usage)
   - [Classes](#classes)
@@ -206,4 +205,4 @@ __blink.js__ uses ES6 syntax/features that are __not__ transpiled or polyfilled 
 [dependencies-badge]: https://img.shields.io/david/frzi/blinkjs.svg
 [dependencies-badge-url]: https://david-dm.org/frzi/blinkjs
 [devdependencies-badge]: https://img.shields.io/david/dev/frzi/blinkjs.svg
-[devdependencies-badge-url]: https://david-dm.org/frzi/blinkjs
+[devdependencies-badge-url]: https://david-dm.org/frzi/blinkjs?type=dev
