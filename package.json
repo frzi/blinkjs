@@ -9,7 +9,8 @@
     "dev": "rollup -c --dev -w",
     "build": "rollup -c",
     "minify": "babili dist/blink.js --out-file dist/blink.min.js",
-    "final": "npm run build && npm run minify"
+    "final": "npm run build && npm run minify",
+    "prepublish": "npm run final"
   },
   "keywords": [
     "blink",

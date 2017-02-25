@@ -4,28 +4,29 @@
 		<meta name="viewport" content="width=500">
 		<meta charset="utf-8">
 		<title>blink.js report</title>
+		<link href="https://fonts.googleapis.com/css?family=Overpass:300,400,700,800" rel="stylesheet">
 		<style>
-			body                            {padding:0; margin:0; font-family:-apple-system, sans-serif; background:rgb(61,58,47);}
+			body                            {padding:0; margin:0; font-family:-apple-system, 'Overpass', sans-serif; background:rgb(61,58,47);}
 			wrapper                         {display:block; position:relative; width:476px; margin:auto;}
 			#blinkno, #blinkyes             {display:none;}
 
 			block                           {display:block; position:relative; background:white; margin:10px; box-shadow:0 3px 7px rgba(0,0,0,.3);}
-			block h2                        {display:block; background:rgb(255,199,59); padding:14px 22px; font-weight:bold; color:white; font-size:16px; margin:0;}
-			block content, block legend		{display:block; position:relative; padding:18px 22px;}
-			block content group				{display:block; position:relative; font-weight:bold; text-transform:uppercase; font-size:12px; padding:10px 0; color:rgb(102,102,117); margin:8px 20px 8px 0;}
+			block h2                        {display:block; background:rgb(255,199,59); padding:14px 22px; font-weight:700; color:rgb(61,58,47); font-size:16px; margin:0;}
+			block content, block legend     {display:block; position:relative; padding:18px 22px;}
+			block content group             {display:block; position:relative; font-weight:800; text-transform:uppercase; font-size:12px; padding:16px 0; color:rgb(51,51,52); margin:3px 20px 3px 0;}
 			block content group:last-of-type{margin-right:0;}
-			block content group::before		{display:block; content:''; position:absolute; left:0; top:0; width:50px; height:2px; background:rgb(80,201,189);}
-			block content group span		{display:block; font-weight:normal; font-size:15px; text-transform:none; color:rgb(102,102,102); padding-top:4px;}
-			block content group.big span	{font-size:28px;}
-			block content flex				{display:flex; align-items:space-around;}
-			block content flex.two group	{width:50%;}
-			block content flex.three group	{width:33%;}
+			block content group::before     {display:block; content:''; position:absolute; left:0; top:0; width:50px; height:2px; background:rgb(80,201,189);}
+			block content group span        {display:block; font-weight:normal; font-size:15px; text-transform:none; color:rgb(102,102,102); padding-top:4px;}
+			block content group.big span    {font-size:28px; font-weight:300;}
+			block content flex              {display:flex; align-items:space-around;}
+			block content flex.two group    {width:50%;}
+			block content flex.three group  {width:33%;}
 			#score                          {display:none; font-size:24px;}
 
 			table                           {position:relative; border-spacing:0; width:100%;}
 			table *                         {color:rgb(55,55,55); font-size:15px;}
 			table th:first-of-type,
-			table td:first-of-type          {width:25%; padding-left:22px; font-weight:bold;}
+			table td:first-of-type          {width:25%; padding-left:22px; font-weight:700;}
 			table th:not(:first-of-type),
 			table td:not(:first-of-type)    {width:25%;}
 			table td:not(:first-of-type)    {cursor:pointer; text-align:center;}
@@ -37,11 +38,11 @@
 			table td                        {height:50px;}
 
 			legend                          {color:rgb(136,135,134); font-size:13px;}
-			legend p						{margin:0; padding:12px 0 12px 40px;}
+			legend p                        {margin:0; padding:12px 0 12px 40px;}
 
 			legend p, table tr td           {background-repeat:no-repeat;}
-			legend p						{background-position:0 9px; background-size:20px 20px;}
-			table tr td						{background-position:50% 50%; background-size:24px 24px;}
+			legend p                        {background-position:0 9px; background-size:20px 20px;}
+			table tr td                     {background-position:50% 50%; background-size:24px 24px;}
 			legend p.success, td.success    {background-image:url('icons.svg#check-color');}
 			td.success.selected             {background-image:url('icons.svg#check-white'); background-color:rgb(0,204,78);}
 			legend p.warning, td.warning    {background-image:url('icons.svg#warning-color');}
@@ -50,22 +51,22 @@
 			td.failed.selected              {background-image:url('icons.svg#bad-white'); background-color:rgb(219,58,44);}
 			table tr td.success:hover:not(.selected)    {background-color:rgba(0,204,78,0.1);}
 			table tr td.warning:hover:not(.selected)    {background-color:rgba(252,151,0,0.1);}
-			table td td.failed:hover:not(.selected)     {background-color:rgba(219,58,44,0.1);}
+			table tr td.failed:hover:not(.selected)     {background-color:rgba(219,58,44,0.1);}
 
 			detailsbox                      {display:none; position:absolute; background:white; box-shadow:0 2px 10px rgba(0,0,0,.3); border-radius:4px; width:calc(100% - 10px); left:5px; box-sizing:border-box; padding:16px 26px; border:2px solid;}
 			detailsbox.show                 {display:block;}
-			detailsbox.success				{border-color:rgb(0,204,78);}
-			detailsbox.warning				{border-color:rgb(252,151,0);}
-			detailsbox.failed				{border-color:rgb(219,58,44);}
+			detailsbox.success              {border-color:rgb(0,204,78);}
+			detailsbox.warning              {border-color:rgb(252,151,0);}
+			detailsbox.failed               {border-color:rgb(219,58,44);}
 			detailsbox.warning span.diff    {color:rgb(252,151,0);}
 			detailsbox.failed span.diff     {color:rgb(219,58,44);}
 			detailsbox group                {display:block; padding:5px 0;}
 			detailsbox group h3             {position:relative; margin:0; font-size:15px; padding:5px 0; color:rgb(51,51,51);}
-			detailsbox code                 {display:block; background-color:rgba(0,0,0,.05); padding:14px 18px; border-radius:1px; overflow:auto;}
+			detailsbox code                 {display:block; background-color:rgba(0,0,0,.05); padding:14px 18px; border-radius:1px; overflow:auto; white-space:nowrap;}
 			detailsbox code, #expectedarray,
 			#readarray                      {font-family:monospace; font-size:14px; color:rgb(102,102,102); line-height:22px;}
-			.times                          {position:absolute; right:0; bottom:5px; font-weight:normal; font-size:12px; color:rgb(153,153,153);}
-			.times span                     {font-weight:bold;}
+			.times                          {float:right; font-weight:normal; font-size:12px; color:rgb(153,153,153);}
+			.times span                     {font-weight:700;}
 		</style>
 		<script src="../dist/blink.js"></script>
 	</head>
@@ -79,7 +80,7 @@
 				</block>
 			</div>
 
-			<div id="blinkyes">			
+			<div id="blinkyes">         
 				<block>
 					<content>blink.js <span id="version"></span></content>
 				</block>
@@ -224,6 +225,8 @@
 			document.getElementById('blinkyes').style.display = 'block'
 				
 			const time = (val) => Math.round(val * 100000) / 100000
+
+			const code2html = (src) => src.trim().split('\n').join('<br>')
 
 			const classNames = ['failed', 'warning', 'success']
 
@@ -594,7 +597,7 @@
 				details.classList.add('show')
 
 				// Kernel.
-				details.querySelector('code').textContent = test.kernel
+				details.querySelector('code').innerHTML = code2html(test.kernel)
 				details.querySelector('#compiletime').textContent = time(test.compileTime)
 				details.querySelector('#exectime').textContent = time(test.execTime)
 

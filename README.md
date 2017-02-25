@@ -8,9 +8,12 @@ blink.js
 [![Dependencies][dependencies-badge]][dependencies-badge-url]
 [![Dev Dependencies][devdependencies-badge]][devdependencies-badge-url]
 
-With WebCL being practically dead and compute shaders still a dream away, it's time to take matters in our own hands. __blink.js__ exploits the power of WebGL 2.0 to provide web developers with an easy-to-use library for GPGPU computing in the browser.
+__blink.js__ (not to be confused with [Blink](https://www.chromium.org/blink), the Chromium render engine) is a small, easy to use GPGPU library for the web, exploiting the power of WebGL 2.0. WebCL is pretty much a dead end now and compute shaders are not (yet) a part of the WebGL specs. __blink.js__ is here to release you from the burden of creating your own pipeline, just to offload some computation tasks to the GPU.
+
+Please note: __blink.js__ uses its own WebGL 2.0 context. Which means it's not pluggable with other WebGL frameworks.
 
 ## Table of contents
+- [About](#about)
 - [Quickstart](#quickstart)
 - [Usage](#usage)
   - [Classes](#classes)
@@ -25,6 +28,7 @@ With WebCL being practically dead and compute shaders still a dream away, it's t
 - [Type compatibility](#type-compatibility)
 - [Built for today](#built-for-today)
 - [See also](#see-also)
+
 
 ## Quickstart
 __blink.js__ works with two types of objects: Buffers and Kernels. A Buffer is an (large) array of values that can be read from and/or written to. A Kernel contains the shader code that will be executed on the device.
