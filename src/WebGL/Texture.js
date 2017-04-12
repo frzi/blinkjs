@@ -4,7 +4,6 @@ import { gl } from './Context'
  * Internal (helper) class.
  */
 export class Texture {
-
 	constructor(internalFormat, width, height, format, type, data, alignment) {
 		const previousTex = gl.getParameter(gl.TEXTURE_BINDING_2D)
 
@@ -65,7 +64,6 @@ export class Texture {
 
 		return true
 	}
-
 }
 
 function withTemporaryFBO(fn) {

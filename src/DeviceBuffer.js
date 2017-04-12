@@ -15,7 +15,6 @@ import { readablesMap, writablesMap } from './Buffer'
  */
 
 export class DeviceBuffer {
-	
 	constructor({alloc, data, type = common.FLOAT, vector = 1}) {
 		this.vector = Math.min(Math.max(vector, 1), 4)
 		if (this.vector == 3) {
@@ -107,5 +106,4 @@ export class DeviceBuffer {
 		readablesMap.set(this, this._getWritable())
 		writablesMap.delete(this)
 	}
-
 }

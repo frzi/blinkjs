@@ -22,7 +22,7 @@
   "author": "frzi",
   "license": "MIT",
   "devDependencies": {
-    "babili": "0.0.11",
+    "babili": "0.0.12",
     "preprocessor": "^1.4.0",
     "rollup": "^0.41.4",
     "rollup-watch": "^3.2.2"

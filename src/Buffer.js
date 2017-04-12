@@ -22,7 +22,6 @@ export let readablesMap = new WeakMap()
 export let writablesMap = new WeakMap()
 
 export class Buffer {
-	
 	constructor({alloc, data, type = common.FLOAT, vector = 1}) {
 		this.vector = Math.min(Math.max(vector, 1), 4)
 		if (this.vector == 3) {
@@ -100,9 +99,7 @@ export class Buffer {
 			writablesMap.delete(this)
 		}
 	}
-
 }
-
 
 function textureForBuffer(buffer, data = null) {
 	const { bytes, internalFormat, format, type } = buffer.formatInfo

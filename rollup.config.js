@@ -2,7 +2,7 @@ import fs from 'fs'
 import Preprocessor from 'preprocessor'
 
 const DEVMODE = ~process.argv.indexOf('--dev') || null
-const [major, minor, patch] = require('./package.json').version.split('.')
+const [MAJOR, MINOR, PATCH] = require('./package.json').version.split('.')
 
 const shader = {
 	load(file) {
@@ -29,14 +29,14 @@ export default {
 	entry: 'src/index.js',
 	plugins: [
 		shader,
-		preprocessor({ major, minor, patch, DEVMODE })
+		preprocessor({ MAJOR, MINOR, PATCH, DEVMODE }),
 	],
 	targets: [
 		{
 			dest: 'dist/blink.js',
 			format: 'umd',
 			moduleName: 'blink',
-			sourceMap: DEVMODE
+			sourceMap: DEVMODE,
 		}
 	],
 }

@@ -8,11 +8,12 @@ blink.js
 [![Dependencies][dependencies-badge]][dependencies-badge-url]
 [![Dev Dependencies][devdependencies-badge]][devdependencies-badge-url]
 
-__blink.js__ (not to be confused with [Blink](https://www.chromium.org/blink), the Chromium render engine) is a small, easy to use GPGPU library for the web, exploiting the power of WebGL 2.0. WebCL is pretty much a dead end now and compute shaders are not (yet) a part of the WebGL specs. __blink.js__ is here to release you from the burden of creating your own pipeline, just to offload some computation tasks to the GPU.
+__blink.js__ (not to be confused with [Blink](https://www.chromium.org/blink), the Chromium render engine) is a small, easy to use GPGPU library for the web, exploiting the power of WebGL 2.0. WebCL is pretty much a dead end now and compute shaders are not (yet) a part of the WebGL specs. __blink.js__ is here to fill that void in your compute-loving heart.
 
-Please note: __blink.js__ uses its own WebGL 2.0 context. Which means it's not pluggable with other WebGL frameworks.
+Please note: __blink.js__ uses its own WebGL 2.0 context. Which means it's not pluggable with other WebGL frameworks. Though, theoretically, you could use blink.js' context as your main WebGL context.
 
 ## Table of contents
+- [Installation](#installation)
 - [Quickstart](#quickstart)
 - [Usage](#usage)
   - [Classes](#classes)
@@ -21,13 +22,22 @@ Please note: __blink.js__ uses its own WebGL 2.0 context. Which means it's not p
     - [Kernel](#Kernel)
   - [Types](#types)
   - [Device](#device)
-- [Examples](#examples)
 - [GLSL](#glsl)
   - [Built-in variables](#built-in-variables)
 - [Type compatibility](#type-compatibility)
 - [Built for today](#built-for-today)
 - [See also](#see-also)
 
+
+## Installation
+Download the `blink.min.js` file from the `dist` folder. Then reference it in the HTML using the `<script>` tag.
+```html
+<script src="blink.min.js"></script>
+```
+Or use the unpkg CDN:
+```html
+<script src="https://unpkg.com/blink.js/dist/blink.min.js"></script>
+```
 
 ## Quickstart
 __blink.js__ works with two types of objects: Buffers and Kernels. A Buffer is an (large) array of values that can be read from and/or written to. A Kernel contains the shader code that will be executed on the device.
@@ -85,19 +95,33 @@ ctx.putImageData(imageData, 0, 0)
 ### Classes
 #### Buffer
 ```javascript
-let buffer = new blink.Buffer({ alloc: 1024 ** 2, type: blink.UINT8, vector: 1 }) // 1 MB
+let buffer = new blink.Buffer({
+    alloc: 1024 ** 2,
+    type: blink.UINT8,
+    vector: 1
+}) 
 buffer.data[0] = 1
 ```
-The Buffer class represents an array of values that can be read from, and written to, on the device. A Buffer's data is copied to the device the moment it's required. After a Kernel is done executing all its steps, the data on the device is copied back to the host, the data on the device is destroyed immediately.
+The Buffer class represents an array of values that can be read from and written to on the device. A Buffer's data is copied to the device the moment it's required. After a Kernel is done executing all its steps, the data on the device is copied back to the host, the data on the device is destroyed immediately.
 
 ##### new Buffer({ alloc|data, type, vector })
+Initialize a new buffer using the given Object containing the following parameters:
+`alloc`: Initialize an (0 filled) ArrayBuffer with this size. Note: The given number represents the number of elements of `type`. **Not** the size in bytes.
+`data`: Opposed to having __blink.js__ initialize the data, you can parse a TypedArray. The Buffer will hold a reference to this TypedArray. Note: If both `alloc` and `data` are present in the Object, `alloc` is chosen.
+`type`: The type of primitives of the Buffer. See [Types](#types). Default is FLOAT.
+`vector`: Number of elements in the vector. Can be 1, 2 or 4. Default is 1.
 ##### Buffer.prototype.data
+Reference to the TypedArray.
 ##### Buffer.prototype.copy()
+Returns a copy of the Buffer. The new instance will also hold a copy of the data allocated on the host.
 
 #### DeviceBuffer
 ```javascript
 const size = 512 ** 2 * 4
-let d_buffer = new blink.DeviceBuffer({ alloc: size * 4, type: blink.UINT32, vector 4}) // 4 MB
+let d_buffer = new blink.DeviceBuffer({
+    alloc: size * 4,
+    type: blink.UINT32,
+})
 
 d_buffer.toDevice(new Uint32Array(size).fill(1))
 const array = d_buffer.toHost()
@@ -111,10 +135,16 @@ Memory is allocated (or copied) the moment the DeviceBuffer is initialized. Memo
 Data can be downloaded to the host and uploaded to the device using the `toHost` and `toDevice` methods respectively.
 
 ##### new DeviceBuffer({ alloc|data, type, vector })
+See `new Buffer()`. Only major difference is that no data is allocated nor referenced on the host.
 ##### DeviceBuffer.prototype.copy()
+Returns a copy of the DeviceBuffer. The data on the device is also copied.
 ##### DeviceBuffer.prototype.delete()
+Delete the data on the device, and, essentially, turn the DeviceBuffer's instance unusable.
 ##### DeviceBuffer.prototype.toDevice(data)
+`data`: A TypedArray (of the same type and size the DeviceBuffer was initialized with) whose data will be uploaded to the device.
 ##### DeviceBuffer.prototype.toHost([data])
+Download the data on the device back to the host.
+`data`: (Optional) If given, it should be of the same type and size the DeviceBuffer was initialized with. If not given, __blink.js__ will initialize and return the correct TypedArray.
 
 #### Kernel
 ```javascript
@@ -135,8 +165,15 @@ kernel.delete()
 ```
 
 ##### new Kernel({ input, output }, shaderSource)
+Initialize a new Kernel with the given inputs, outputs and (fragment) shader source.
+`input`: (Optional) A key-value Object, where keys are the names of the inputs and the values a reference to either a Buffer or DeviceBuffer. The input names become available in the shader to read from their respective buffer.
+`output`: Same as input, except for writing to buffers.
+`shaderSource`: Source of the shader as a String.
 ##### Kernel.prototype.exec([uniforms])
+Execute the Kernel. 
+`uniforms`: (Optional) If given, it should be a key-value Object with the keys being the uniforms' names and values their value.
 ##### Kernel.prototype.delete()
+Delete all associated shaders and programs on the device. Essentially rendering the Kernel's instance as unusable.
 
 ### Types
 * `blink.FLOAT` (`Float32Array`)
@@ -159,9 +196,6 @@ kernel.delete()
 * `unmaskedVendor`: Unmasked vendor name.<sup>[1]</sup>
 
 <sup>[1]</sup> Only available if the [`WEBGL_debug_renderer_info`](https://www.khronos.org/registry/webgl/extensions/WEBGL_debug_renderer_info/) extension is supported.
-
-## Examples
-Maybe later.
 
 ## GLSL
 WebGL 2.0 supports GLSL ES 3.00, which includes (but not limited to) the following significant new features compared to GLSL ES 1.30 in WebGL 1.0:

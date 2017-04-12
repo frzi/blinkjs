@@ -1,16 +1,13 @@
 import { gl } from  './Context'
 import vertexSource from './../shaders/quad.vert'
 
-
 // Keep the vertex shader in memory.
 const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource)
-
 
 /**
  * Internal (helper) class.
  */
 export class Program {
-
 	constructor(fragSource) {
 		let fragShader = compileShader(gl.FRAGMENT_SHADER, fragSource)
 
@@ -31,7 +28,7 @@ export class Program {
 		this.attributes = {}
 		const attribCount = gl.getProgramParameter(this.id, gl.ACTIVE_ATTRIBUTES)
 		for (let a = 0; a < attribCount; a++) {
-			const attribute = gl.getActiveAttrib(this.id, a)
+			let attribute = gl.getActiveAttrib(this.id, a)
 			attribute.id = gl.getAttribLocation(this.id, attribute.name)
 			this.attributes[attribute.name] = attribute
 		}
@@ -39,7 +36,7 @@ export class Program {
 		this.uniforms = {}
 		const uniformCount = gl.getProgramParameter(this.id, gl.ACTIVE_UNIFORMS)
 		for (let u = 0; u < uniformCount; u++) {
-			const uniform = gl.getActiveUniform(this.id, u)
+			let uniform = gl.getActiveUniform(this.id, u)
 			uniform.id = gl.getUniformLocation(this.id, uniform.name)
 			this.uniforms[uniform.name] = uniform
 		}
@@ -70,9 +67,7 @@ export class Program {
 			gl[fnName](id, false, ...values)
 		}
 	}
-
 }
-
 
 function compileShader(type, source) {
 	// Check if the shader defines glsl version.
@@ -94,7 +89,6 @@ function compileShader(type, source) {
 
 	return shader
 }
-
 
 const uniformsFnTable = {
 	[gl.FLOAT]:                   'uniform1f',

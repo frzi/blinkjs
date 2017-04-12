@@ -13,7 +13,6 @@ import fragTemplate from './shaders/template.frag'
  */
 
 export class Kernel {
-
 	constructor(io, source) {
 		this.inputs = io.in || io.input || io.inputs || {}
 		this.outputs = io.out || io.output || io.outputs
@@ -166,7 +165,6 @@ export class Kernel {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null)
 		gl.deleteFramebuffer(fbo)
 	}
-
 }
 
 

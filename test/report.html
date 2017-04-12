@@ -265,7 +265,7 @@
 									out_buffer = vec2(id + 0.12345, id + 0.56789);
 								}
 							`,
-							expected: new Float32Array([0.12345, 0.56789, 1.12345, 1.56789])
+							expected: new Float32Array([0.12345, 0.56789, 1 + 0.12345, 1 + 0.56789])
 						},
 						{
 							kernel: `
