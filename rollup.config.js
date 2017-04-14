@@ -1,8 +1,8 @@
 import fs from 'fs'
-import Preprocessor from 'preprocessor'
+import jscc from 'rollup-plugin-jscc'
 
-const DEVMODE = ~process.argv.indexOf('--dev') || null
-const [MAJOR, MINOR, PATCH] = require('./package.json').version.split('.')
+const _DEVMODE = ~process.argv.indexOf('--dev') || null
+const [_MAJOR, _MINOR, _PATCH] = require('./package.json').version.split('.')
 
 const shader = {
 	load(file) {
@@ -16,27 +16,23 @@ const shader = {
 	}
 }
 
-const preprocessor = function(defines) {
-	return {
-		transform(code, id) {
-			let processor = new Preprocessor(code, defines)
-			return processor.process(defines)
-		}
-	}
+const defines = {
+	_DEVMODE, 
+	_MAJOR, _MINOR, _PATCH,
 }
 
 export default {
 	entry: 'src/index.js',
 	plugins: [
 		shader,
-		preprocessor({ MAJOR, MINOR, PATCH, DEVMODE }),
+		jscc({ values: defines }),
 	],
 	targets: [
 		{
 			dest: 'dist/blink.js',
 			format: 'umd',
 			moduleName: 'blink',
-			sourceMap: DEVMODE,
+			sourceMap: _DEVMODE,
 		}
 	],
 }

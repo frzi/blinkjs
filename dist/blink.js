@@ -167,7 +167,6 @@ function closestDimensions(area) {
  * Internal (helper) class.
  */
 class Texture {
-
 	constructor(internalFormat, width, height, format, type, data, alignment) {
 		const previousTex = gl.getParameter(gl.TEXTURE_BINDING_2D);
 
@@ -228,7 +227,6 @@ class Texture {
 
 		return true
 	}
-
 }
 
 function withTemporaryFBO(fn) {
@@ -260,7 +258,6 @@ let readablesMap = new WeakMap();
 let writablesMap = new WeakMap();
 
 class Buffer {
-	
 	constructor({alloc, data, type = FLOAT, vector = 1}) {
 		this.vector = Math.min(Math.max(vector, 1), 4);
 		if (this.vector == 3) {
@@ -338,9 +335,7 @@ class Buffer {
 			writablesMap.delete(this);
 		}
 	}
-
 }
-
 
 function textureForBuffer(buffer, data = null) {
 	const { bytes, internalFormat, format, type } = buffer.formatInfo;
@@ -359,7 +354,6 @@ function textureForBuffer(buffer, data = null) {
  */
 
 class DeviceBuffer {
-	
 	constructor({alloc, data, type = FLOAT, vector = 1}) {
 		this.vector = Math.min(Math.max(vector, 1), 4);
 		if (this.vector == 3) {
@@ -451,7 +445,6 @@ class DeviceBuffer {
 		readablesMap.set(this, this._getWritable());
 		writablesMap.delete(this);
 	}
-
 }
 
 var vertexSource = `#version 300 es
@@ -469,12 +462,10 @@ void main() {
 // Keep the vertex shader in memory.
 const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
 
-
 /**
  * Internal (helper) class.
  */
 class Program {
-
 	constructor(fragSource) {
 		let fragShader = compileShader(gl.FRAGMENT_SHADER, fragSource);
 
@@ -495,7 +486,7 @@ class Program {
 		this.attributes = {};
 		const attribCount = gl.getProgramParameter(this.id, gl.ACTIVE_ATTRIBUTES);
 		for (let a = 0; a < attribCount; a++) {
-			const attribute = gl.getActiveAttrib(this.id, a);
+			let attribute = gl.getActiveAttrib(this.id, a);
 			attribute.id = gl.getAttribLocation(this.id, attribute.name);
 			this.attributes[attribute.name] = attribute;
 		}
@@ -503,7 +494,7 @@ class Program {
 		this.uniforms = {};
 		const uniformCount = gl.getProgramParameter(this.id, gl.ACTIVE_UNIFORMS);
 		for (let u = 0; u < uniformCount; u++) {
-			const uniform = gl.getActiveUniform(this.id, u);
+			let uniform = gl.getActiveUniform(this.id, u);
 			uniform.id = gl.getUniformLocation(this.id, uniform.name);
 			this.uniforms[uniform.name] = uniform;
 		}
@@ -534,9 +525,7 @@ class Program {
 			gl[fnName](id, false, ...values);
 		}
 	}
-
 }
-
 
 function compileShader(type, source) {
 	// Check if the shader defines glsl version.
@@ -558,7 +547,6 @@ function compileShader(type, source) {
 
 	return shader
 }
-
 
 const uniformsFnTable = {
 	[gl.FLOAT]:                   'uniform1f',
@@ -615,7 +603,6 @@ highp uint bl_Id() {
  */
 
 class Kernel {
-
 	constructor(io, source) {
 		this.inputs = io.in || io.input || io.inputs || {};
 		this.outputs = io.out || io.output || io.outputs;
@@ -768,7 +755,6 @@ class Kernel {
 		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 		gl.deleteFramebuffer(fbo);
 	}
-
 }
 
 
@@ -794,8 +780,8 @@ function prepareFragmentShader(inputs, outputDescriptors, source) {
 
 const VERSION = {
 	major: 0,
-	minor: 1,
-	patch: 2,
+	minor: 2,
+	patch: 0,
 	toString() { return `${this.major}.${this.minor}.${this.patch}` }
 };
 

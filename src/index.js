@@ -10,8 +10,8 @@ export {
 } from './common'
 
 export const VERSION = {
-	major: // #put MAJOR + ',' 
-	minor: // #put MINOR + ',' 
-	patch: // #put PATCH + ',' 
+	major: $_MAJOR,
+	minor: $_MINOR,
+	patch: $_PATCH,
 	toString() { return `${this.major}.${this.minor}.${this.patch}` }
 }
