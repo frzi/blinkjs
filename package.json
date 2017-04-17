@@ -23,7 +23,7 @@
   "license": "MIT",
   "devDependencies": {
     "babili": "0.0.12",
-    "rollup": "^0.41.4",
+    "rollup": "^0.41.6",
     "rollup-plugin-jscc": "^0.3.3",
     "rollup-watch": "^3.2.2"
   }

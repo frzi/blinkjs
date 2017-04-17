@@ -21,16 +21,16 @@ export const arrayConstructors = new Map([
 	[UINT8,  Uint8Array],
 ])
 
-export const arrayTypes = {
-	[Float32Array]:      FLOAT,
-	[Int32Array]:        INT32,
-	[Int16Array]:        INT16,
-	[Int8Array]:         INT8,
-	[Uint32Array]:       UINT32,
-	[Uint16Array]:       UINT16,
-	[Uint8Array]:        UINT8,
-	[Uint8ClampedArray]: UINT8,
-}
+export const arrayTypes = new Map([
+	[Float32Array,      FLOAT],
+	[Int32Array,        INT32],
+	[Int16Array,        INT16],
+	[Int8Array,         INT8],
+	[Uint32Array,       UINT32],
+	[Uint16Array,       UINT16],
+	[Uint8Array,        UINT8],
+	[Uint8ClampedArray, UINT8],
+])
 
 
 /// Hands out all the types associated with a Buffer's data.
@@ -51,7 +51,7 @@ export function formatInfo(dataType, vectorSize = 1) {
 	}
 
 	let internalFormat = ['R', 'RG', 'RGB', 'RGBA'][vectorSize - 1]
-	internalFormat += bytes * 8 + '' // 8, 16 or 32
+	internalFormat += bytes * 8 // 8, 16 or 32
 	internalFormat += integer && unsigned ? 'UI' : integer ? 'I' : 'F'
 
 	let format = ['RED', 'RG', 'RGB', 'RGBA'][vectorSize - 1]

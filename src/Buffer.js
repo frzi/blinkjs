@@ -37,7 +37,7 @@ export class Buffer {
 			throw new Error('Buffer size exceeds device limit.')
 		}
 
-		if (alloc !== undefined) {
+		if (alloc != null) {
 			const typedArray = common.arrayConstructors.get(type)
 			this.data = new typedArray(size)
 		}
@@ -66,8 +66,12 @@ export class Buffer {
 	/// Private methods / properties.
 
 	get formatInfo() {
-		const type = common.arrayTypes[this.data.constructor]
-		return common.formatInfo(type, this.vector)
+		for (const [constructor, type] of arrayTypes) {
+			if (this.data instanceof constructor) {
+				return common.formatInfo(type, this.vector)
+			}
+		}
+		return null
 	}
 
 	_getReadable(forceCreate = false) {

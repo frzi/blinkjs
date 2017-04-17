@@ -30,7 +30,15 @@ export class DeviceBuffer {
 			throw new Error('Buffer size exceeds device limit.')
 		}
 		
-		this.type = data ? common.arrayTypes[data.constructor] : type
+		let associatedType = type
+		if (data) {
+			for (const [constructor, type] of arrayTypes) {
+				if (data instanceof constructor) {
+					associatedType = type
+				}
+			}
+		}
+		this.type = associatedType
 
 		// Allocate on the device, immediately.
 		let texture = this._getReadable(true)
