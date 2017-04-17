@@ -99,16 +99,7 @@ const arrayConstructors = new Map([
 	[UINT8,  Uint8Array],
 ]);
 
-const arrayTypes = {
-	[Float32Array]:      FLOAT,
-	[Int32Array]:        INT32,
-	[Int16Array]:        INT16,
-	[Int8Array]:         INT8,
-	[Uint32Array]:       UINT32,
-	[Uint16Array]:       UINT16,
-	[Uint8Array]:        UINT8,
-	[Uint8ClampedArray]: UINT8,
-};
+
 
 
 /// Hands out all the types associated with a Buffer's data.
@@ -129,7 +120,7 @@ function formatInfo(dataType, vectorSize = 1) {
 	}
 
 	let internalFormat = ['R', 'RG', 'RGB', 'RGBA'][vectorSize - 1];
-	internalFormat += bytes * 8 + ''; // 8, 16 or 32
+	internalFormat += bytes * 8; // 8, 16 or 32
 	internalFormat += integer && unsigned ? 'UI' : integer ? 'I' : 'F';
 
 	let format = ['RED', 'RG', 'RGB', 'RGBA'][vectorSize - 1];
@@ -273,7 +264,7 @@ class Buffer {
 			throw new Error('Buffer size exceeds device limit.')
 		}
 
-		if (alloc !== undefined) {
+		if (alloc != null) {
 			const typedArray = arrayConstructors.get(type);
 			this.data = new typedArray(size);
 		}
@@ -302,8 +293,12 @@ class Buffer {
 	/// Private methods / properties.
 
 	get formatInfo() {
-		const type = arrayTypes[this.data.constructor];
-		return formatInfo(type, this.vector)
+		for (const [constructor, type] of arrayTypes) {
+			if (this.data instanceof constructor) {
+				return formatInfo(type, this.vector)
+			}
+		}
+		return null
 	}
 
 	_getReadable(forceCreate = false) {
@@ -369,7 +364,15 @@ class DeviceBuffer {
 			throw new Error('Buffer size exceeds device limit.')
 		}
 		
-		this.type = data ? arrayTypes[data.constructor] : type;
+		let associatedType = type;
+		if (data) {
+			for (const [constructor, type] of arrayTypes) {
+				if (data instanceof constructor) {
+					associatedType = type;
+				}
+			}
+		}
+		this.type = associatedType;
 
 		// Allocate on the device, immediately.
 		let texture = this._getReadable(true);
