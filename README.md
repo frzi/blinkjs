@@ -136,12 +136,16 @@ Data can be downloaded to the host and uploaded to the device using the `toHost`
 
 ##### new DeviceBuffer({ alloc|data, type, vector })
 See `new Buffer()`. Only major difference is that no data is allocated nor referenced on the host.
+
 ##### DeviceBuffer.prototype.copy()
 Returns a copy of the DeviceBuffer. The data on the device is also copied.
+
 ##### DeviceBuffer.prototype.delete()
 Delete the data on the device, and, essentially, turn the DeviceBuffer's instance unusable.
+
 ##### DeviceBuffer.prototype.toDevice(data)
 `data`: A TypedArray (of the same type and size the DeviceBuffer was initialized with) whose data will be uploaded to the device.
+
 ##### DeviceBuffer.prototype.toHost([data])
 Download the data on the device back to the host.
 `data`: (Optional) If given, it should be of the same type and size the DeviceBuffer was initialized with. If not given, __blink.js__ will initialize and return the correct TypedArray.

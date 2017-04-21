@@ -92,9 +92,9 @@ function compileShader(type, source) {
 
 const uniformsFnTable = {
 	[gl.FLOAT]:                   'uniform1f',
-	[gl.FLOAT_VEC_2]:             'uniform2f',
-	[gl.FLOAT_VEC_3]:             'uniform3f',
-	[gl.FLOAT_VEC_4]:             'uniform4f',
+	[gl.FLOAT_VEC2]:              'uniform2f',
+	[gl.FLOAT_VEC3]:              'uniform3f',
+	[gl.FLOAT_VEC4]:              'uniform4f',
 	[gl.INT]:                     'uniform1i',
 	[gl.INT_VEC2]:                'uniform2i',
 	[gl.INT_VEC3]:                'uniform3i',
