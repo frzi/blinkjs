@@ -61,7 +61,6 @@ export class Texture {
 			gl.readBuffer(gl.COLOR_ATTACHMENT0)
 			gl.readPixels(0, 0, this.width, this.height, gl[this.format], gl[this.type], data, 0)
 		})
-
 		return true
 	}
 }

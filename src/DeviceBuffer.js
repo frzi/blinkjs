@@ -32,9 +32,10 @@ export class DeviceBuffer {
 		
 		let associatedType = type
 		if (data) {
-			for (const [constructor, type] of arrayTypes) {
+			for (const [constructor, type] of common.arrayTypes) {
 				if (data instanceof constructor) {
 					associatedType = type
+					break
 				}
 			}
 		}
@@ -81,7 +82,12 @@ export class DeviceBuffer {
 			data = new typedArray(this.size)
 		}
 
-		this._getReadable().read(data)
+		// Cast Uint8ClampedArray to Uint8Array.
+		let ref = data
+		if (data instanceof Uint8ClampedArray) {
+			ref = new Uint8Array(data.buffer)
+		}
+		this._getReadable().read(ref)
 
 		return data
 	}
@@ -93,6 +99,8 @@ export class DeviceBuffer {
 	}
 
 	_getReadable(forceCreate = false) {
+		window.readablesMap = readablesMap
+		window.writablesMap = writablesMap
 		if (!readablesMap.has(this) && forceCreate) {
 			const { bytes, internalFormat, format, type } = this.formatInfo
 			const [width, height] = this.dimensions

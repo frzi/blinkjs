@@ -99,7 +99,16 @@ const arrayConstructors = new Map([
 	[UINT8,  Uint8Array],
 ]);
 
-
+const arrayTypes = new Map([
+	[Float32Array,      FLOAT],
+	[Int32Array,        INT32],
+	[Int16Array,        INT16],
+	[Int8Array,         INT8],
+	[Uint32Array,       UINT32],
+	[Uint16Array,       UINT16],
+	[Uint8Array,        UINT8],
+	[Uint8ClampedArray, UINT8],
+]);
 
 
 /// Hands out all the types associated with a Buffer's data.
@@ -215,7 +224,6 @@ class Texture {
 			gl.readBuffer(gl.COLOR_ATTACHMENT0);
 			gl.readPixels(0, 0, this.width, this.height, gl[this.format], gl[this.type], data, 0);
 		});
-
 		return true
 	}
 }
@@ -369,6 +377,7 @@ class DeviceBuffer {
 			for (const [constructor, type] of arrayTypes) {
 				if (data instanceof constructor) {
 					associatedType = type;
+					break
 				}
 			}
 		}
@@ -415,7 +424,12 @@ class DeviceBuffer {
 			data = new typedArray(this.size);
 		}
 
-		this._getReadable().read(data);
+		// Cast Uint8ClampedArray to Uint8Array.
+		let ref = data;
+		if (data instanceof Uint8ClampedArray) {
+			ref = new Uint8Array(data.buffer);
+		}
+		this._getReadable().read(ref);
 
 		return data
 	}
@@ -427,6 +441,8 @@ class DeviceBuffer {
 	}
 
 	_getReadable(forceCreate = false) {
+		window.readablesMap = readablesMap;
+		window.writablesMap = writablesMap;
 		if (!readablesMap.has(this) && forceCreate) {
 			const { bytes, internalFormat, format, type } = this.formatInfo;
 			const [width, height] = this.dimensions;
@@ -553,9 +569,9 @@ function compileShader(type, source) {
 
 const uniformsFnTable = {
 	[gl.FLOAT]:                   'uniform1f',
-	[gl.FLOAT_VEC_2]:             'uniform2f',
-	[gl.FLOAT_VEC_3]:             'uniform3f',
-	[gl.FLOAT_VEC_4]:             'uniform4f',
+	[gl.FLOAT_VEC2]:              'uniform2f',
+	[gl.FLOAT_VEC3]:              'uniform3f',
+	[gl.FLOAT_VEC4]:              'uniform4f',
 	[gl.INT]:                     'uniform1i',
 	[gl.INT_VEC2]:                'uniform2i',
 	[gl.INT_VEC3]:                'uniform3i',
@@ -750,7 +766,7 @@ class Kernel {
 		}
 
 		// Clean-up all resources.
-		const allBuffers = [...Object.values(this.inputs), ...Object.values(this.outputs)];
+		const allBuffers = new Set([...Object.values(this.inputs), ...Object.values(this.outputs)]);
 		for (const buffer of allBuffers) {
 			buffer._finish();
 		}
@@ -784,7 +800,7 @@ function prepareFragmentShader(inputs, outputDescriptors, source) {
 const VERSION = {
 	major: 0,
 	minor: 2,
-	patch: 0,
+	patch: 2,
 	toString() { return `${this.major}.${this.minor}.${this.patch}` }
 };
 

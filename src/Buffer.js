@@ -66,7 +66,7 @@ export class Buffer {
 	/// Private methods / properties.
 
 	get formatInfo() {
-		for (const [constructor, type] of arrayTypes) {
+		for (const [constructor, type] of common.arrayTypes) {
 			if (this.data instanceof constructor) {
 				return common.formatInfo(type, this.vector)
 			}

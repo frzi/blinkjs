@@ -157,7 +157,7 @@ export class Kernel {
 		}
 
 		// Clean-up all resources.
-		const allBuffers = [...Object.values(this.inputs), ...Object.values(this.outputs)]
+		const allBuffers = new Set([...Object.values(this.inputs), ...Object.values(this.outputs)])
 		for (const buffer of allBuffers) {
 			buffer._finish()
 		}
