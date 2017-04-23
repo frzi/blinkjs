@@ -22,7 +22,7 @@ export let readablesMap = new WeakMap()
 export let writablesMap = new WeakMap()
 
 export class Buffer {
-	constructor({alloc, data, type = common.FLOAT, vector = 1}) {
+	constructor({alloc, data, type = common.FLOAT, vector = 1, wrap = common.CLAMP}) {
 		this.vector = Math.min(Math.max(vector, 1), 4)
 		if (this.vector == 3) {
 			console.warn('Vector size of 3 not supported. Choosing vector size 4.')
@@ -31,6 +31,9 @@ export class Buffer {
 
 		let size = alloc || data.length
 		this.dimensions = common.closestDimensions(size / this.vector)
+
+		// Wrap mode for S and T.
+		this.wrap = Array.isArray(wrap) ? wrap : [wrap, wrap]
 
 		const maxDimension = device.maxTextureSize ** 2
 		if (Math.max(...this.dimensions) > maxDimension) {
@@ -105,8 +108,8 @@ export class Buffer {
 	}
 }
 
-function textureForBuffer(buffer, data = null) {
+function textureForBuffer(buffer, data = null, wrap) {
 	const { bytes, internalFormat, format, type } = buffer.formatInfo
 	const [width, height] = buffer.dimensions
-	return new Texture(internalFormat, width, height, format, type, data, bytes)
+	return new Texture(internalFormat, width, height, format, type, data, bytes, ...buffer.wrap)
 }

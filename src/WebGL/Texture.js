@@ -4,7 +4,7 @@ import { gl } from './Context'
  * Internal (helper) class.
  */
 export class Texture {
-	constructor(internalFormat, width, height, format, type, data, alignment) {
+	constructor(internalFormat, width, height, format, type, data, alignment, wrapS, wrapT) {
 		const previousTex = gl.getParameter(gl.TEXTURE_BINDING_2D)
 
 		this.internalFormat = internalFormat
@@ -16,8 +16,8 @@ export class Texture {
 
 		this.id = gl.createTexture()
 		gl.bindTexture(gl.TEXTURE_2D, this.id)
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS || gl.CLAMP_TO_EDGE)
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT || gl.CLAMP_TO_EDGE)
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl[this.internalFormat], width, height, 0, gl[this.format], gl[this.type], data)

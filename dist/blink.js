@@ -87,6 +87,11 @@ const UINT32 = type('uint32', 4, true,  true);
 const UINT16 = type('uint16', 2, true,  true);
 const UINT8  = type('uint8',  1, true,  true);
 
+// Wrap modes for the textures.
+const CLAMP  = 33071;
+const REPEAT = 10497;
+const MIRROR = 33648;
+
 
 // TypedArray helpers.
 const arrayConstructors = new Map([
@@ -167,7 +172,7 @@ function closestDimensions(area) {
  * Internal (helper) class.
  */
 class Texture {
-	constructor(internalFormat, width, height, format, type, data, alignment) {
+	constructor(internalFormat, width, height, format, type, data, alignment, wrapS, wrapT) {
 		const previousTex = gl.getParameter(gl.TEXTURE_BINDING_2D);
 
 		this.internalFormat = internalFormat;
@@ -179,8 +184,8 @@ class Texture {
 
 		this.id = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_2D, this.id);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrapS || gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrapT || gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl[this.internalFormat], width, height, 0, gl[this.format], gl[this.type], data);
@@ -257,7 +262,7 @@ let readablesMap = new WeakMap();
 let writablesMap = new WeakMap();
 
 class Buffer {
-	constructor({alloc, data, type = FLOAT, vector = 1}) {
+	constructor({alloc, data, type = FLOAT, vector = 1, wrap = CLAMP}) {
 		this.vector = Math.min(Math.max(vector, 1), 4);
 		if (this.vector == 3) {
 			console.warn('Vector size of 3 not supported. Choosing vector size 4.');
@@ -266,6 +271,9 @@ class Buffer {
 
 		let size = alloc || data.length;
 		this.dimensions = closestDimensions(size / this.vector);
+
+		// Wrap mode for S and T.
+		this.wrap = Array.isArray(wrap) ? wrap : [wrap, wrap];
 
 		const maxDimension = device.maxTextureSize ** 2;
 		if (Math.max(...this.dimensions) > maxDimension) {
@@ -340,10 +348,10 @@ class Buffer {
 	}
 }
 
-function textureForBuffer(buffer, data = null) {
+function textureForBuffer(buffer, data = null, wrap) {
 	const { bytes, internalFormat, format, type } = buffer.formatInfo;
 	const [width, height] = buffer.dimensions;
-	return new Texture(internalFormat, width, height, format, type, data, bytes)
+	return new Texture(internalFormat, width, height, format, type, data, bytes, ...buffer.wrap)
 }
 
 /**
@@ -357,7 +365,7 @@ function textureForBuffer(buffer, data = null) {
  */
 
 class DeviceBuffer {
-	constructor({alloc, data, type = FLOAT, vector = 1}) {
+	constructor({alloc, data, type = FLOAT, vector = 1, wrap = CLAMP}) {
 		this.vector = Math.min(Math.max(vector, 1), 4);
 		if (this.vector == 3) {
 			console.warn('Vector size of 3 not supported. Choosing vector size 4.');
@@ -366,6 +374,9 @@ class DeviceBuffer {
 
 		this.size = alloc || data.length;
 		this.dimensions = closestDimensions(this.size / this.vector);
+
+		// Wrap mode for S and T.
+		this.wrap = Array.isArray(wrap) ? wrap : [wrap, wrap];
 
 		const maxDimension = device.maxTextureSize ** 2;
 		if (Math.max(...this.dimensions) > maxDimension) {
@@ -441,12 +452,10 @@ class DeviceBuffer {
 	}
 
 	_getReadable(forceCreate = false) {
-		window.readablesMap = readablesMap;
-		window.writablesMap = writablesMap;
 		if (!readablesMap.has(this) && forceCreate) {
 			const { bytes, internalFormat, format, type } = this.formatInfo;
 			const [width, height] = this.dimensions;
-			readablesMap.set(this, new Texture(internalFormat, width, height, format, type, null, bytes));
+			readablesMap.set(this, new Texture(internalFormat, width, height, format, type, null, bytes, ...this.wrap));
 		}
 		return readablesMap.get(this)
 	}
@@ -800,7 +809,7 @@ function prepareFragmentShader(inputs, outputDescriptors, source) {
 const VERSION = {
 	major: 0,
 	minor: 2,
-	patch: 2,
+	patch: 3,
 	toString() { return `${this.major}.${this.minor}.${this.patch}` }
 };
 
@@ -817,6 +826,9 @@ exports.INT8 = INT8;
 exports.UINT32 = UINT32;
 exports.UINT16 = UINT16;
 exports.UINT8 = UINT8;
+exports.CLAMP = CLAMP;
+exports.REPEAT = REPEAT;
+exports.MIRROR = MIRROR;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 

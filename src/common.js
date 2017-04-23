@@ -9,6 +9,11 @@ export const UINT32 = type('uint32', 4, true,  true)
 export const UINT16 = type('uint16', 2, true,  true)
 export const UINT8  = type('uint8',  1, true,  true)
 
+// Wrap modes for the textures.
+export const CLAMP  = 33071
+export const REPEAT = 10497
+export const MIRROR = 33648
+
 
 // TypedArray helpers.
 export const arrayConstructors = new Map([

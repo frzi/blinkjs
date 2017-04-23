@@ -15,7 +15,7 @@ import { readablesMap, writablesMap } from './Buffer'
  */
 
 export class DeviceBuffer {
-	constructor({alloc, data, type = common.FLOAT, vector = 1}) {
+	constructor({alloc, data, type = common.FLOAT, vector = 1, wrap = common.CLAMP}) {
 		this.vector = Math.min(Math.max(vector, 1), 4)
 		if (this.vector == 3) {
 			console.warn('Vector size of 3 not supported. Choosing vector size 4.')
@@ -24,6 +24,9 @@ export class DeviceBuffer {
 
 		this.size = alloc || data.length
 		this.dimensions = common.closestDimensions(this.size / this.vector)
+
+		// Wrap mode for S and T.
+		this.wrap = Array.isArray(wrap) ? wrap : [wrap, wrap]
 
 		const maxDimension = device.maxTextureSize ** 2
 		if (Math.max(...this.dimensions) > maxDimension) {
@@ -99,12 +102,10 @@ export class DeviceBuffer {
 	}
 
 	_getReadable(forceCreate = false) {
-		window.readablesMap = readablesMap
-		window.writablesMap = writablesMap
 		if (!readablesMap.has(this) && forceCreate) {
 			const { bytes, internalFormat, format, type } = this.formatInfo
 			const [width, height] = this.dimensions
-			readablesMap.set(this, new Texture(internalFormat, width, height, format, type, null, bytes))
+			readablesMap.set(this, new Texture(internalFormat, width, height, format, type, null, bytes, ...this.wrap))
 		}
 		return readablesMap.get(this)
 	}

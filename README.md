@@ -21,6 +21,7 @@ Please note: __blink.js__ uses its own WebGL 2.0 context. Which means it's not p
     - [DeviceBuffer](#devicebuffer)
     - [Kernel](#Kernel)
   - [Types](#types)
+  - [Wrap modes](#wrap-modes)
   - [Device](#device)
 - [GLSL](#glsl)
   - [Built-in variables](#built-in-variables)
@@ -98,20 +99,24 @@ ctx.putImageData(imageData, 0, 0)
 let buffer = new blink.Buffer({
     alloc: 1024 ** 2,
     type: blink.UINT8,
-    vector: 1
+    vector: 1,
+    wrap: blink.CLAMP
 }) 
 buffer.data[0] = 1
 ```
 The Buffer class represents an array of values that can be read from and written to on the device. A Buffer's data is copied to the device the moment it's required. After a Kernel is done executing all its steps, the data on the device is copied back to the host, the data on the device is destroyed immediately.
 
-##### new Buffer({ alloc|data, type, vector })
+##### new Buffer({ alloc|data, type, vector, wrap })
 Initialize a new buffer using the given Object containing the following parameters:
 `alloc`: Initialize an (0 filled) ArrayBuffer with this size. Note: The given number represents the number of elements of `type`. **Not** the size in bytes.
 `data`: Opposed to having __blink.js__ initialize the data, you can parse a TypedArray. The Buffer will hold a reference to this TypedArray. Note: If both `alloc` and `data` are present in the Object, `alloc` is chosen.
 `type`: The type of primitives of the Buffer. See [Types](#types). Default is FLOAT.
 `vector`: Number of elements in the vector. Can be 1, 2 or 4. Default is 1.
+`wrap`: Texture wrap mode. Can either be an array for S and T or a single constant. See [Wrap modes](#wrap-modes). Default is CLAMP.
+
 ##### Buffer.prototype.data
 Reference to the TypedArray.
+
 ##### Buffer.prototype.copy()
 Returns a copy of the Buffer. The new instance will also hold a copy of the data allocated on the host.
 
@@ -173,9 +178,11 @@ Initialize a new Kernel with the given inputs, outputs and (fragment) shader sou
 `input`: (Optional) A key-value Object, where keys are the names of the inputs and the values a reference to either a Buffer or DeviceBuffer. The input names become available in the shader to read from their respective buffer.
 `output`: Same as input, except for writing to buffers.
 `shaderSource`: Source of the shader as a String.
+
 ##### Kernel.prototype.exec([uniforms])
 Execute the Kernel. 
 `uniforms`: (Optional) If given, it should be a key-value Object with the keys being the uniforms' names and values their value.
+
 ##### Kernel.prototype.delete()
 Delete all associated shaders and programs on the device. Essentially rendering the Kernel's instance as unusable.
 
@@ -187,6 +194,11 @@ Delete all associated shaders and programs on the device. Essentially rendering 
 * `blink.INT8` (`Int8Array`)
 * `blink.INT16` (`Int16Array`)
 * `blink.INT32` (`Int32Array`)
+
+### Wrap modes
+* `blink.CLAMP`
+* `blink.REPEAT`
+* `blink.MIRROR`
 
 ### Device
 `blink.device` contains information gathered from the WebGL context.
