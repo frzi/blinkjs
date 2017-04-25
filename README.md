@@ -108,10 +108,15 @@ The Buffer class represents an array of values that can be read from and written
 
 ##### new Buffer({ alloc|data, type, vector, wrap })
 Initialize a new buffer using the given Object containing the following parameters:
+
 `alloc`: Initialize an (0 filled) ArrayBuffer with this size. Note: The given number represents the number of elements of `type`. **Not** the size in bytes.
+
 `data`: Opposed to having __blink.js__ initialize the data, you can parse a TypedArray. The Buffer will hold a reference to this TypedArray. Note: If both `alloc` and `data` are present in the Object, `alloc` is chosen.
+
 `type`: The type of primitives of the Buffer. See [Types](#types). Default is FLOAT.
+
 `vector`: Number of elements in the vector. Can be 1, 2 or 4. Default is 1.
+
 `wrap`: Texture wrap mode. Can either be an array for S and T or a single constant. See [Wrap modes](#wrap-modes). Default is CLAMP.
 
 ##### Buffer.prototype.data
