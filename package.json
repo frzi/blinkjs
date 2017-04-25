@@ -1,6 +1,6 @@
 {
   "name": "blink.js",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Easy GPGPU on the web, powered by WebGL 2.0.",
   "main": "dist/blink.js",
   "homepage": "https://github.com/frzi/blinkjs",

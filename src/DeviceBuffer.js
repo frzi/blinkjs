@@ -119,11 +119,11 @@ export class DeviceBuffer {
 
 	_finish() {
 		// Swap.
-		const writableCopy = this._getWritable()
+		let writableCopy = this._getWritable()
 		if (writableCopy) {
-			const readablCopy = this._getReadable()
-			if (readablCopy) {
-				readablCopy.delete()
+			let readableCopy = this._getReadable()
+			if (readableCopy) {
+				readableCopy.delete()
 			}
 			readablesMap.set(this, writableCopy)
 			writablesMap.delete(this)
