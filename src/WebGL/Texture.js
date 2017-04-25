@@ -51,7 +51,7 @@ export class Texture {
 	upload(data) {
 		gl.bindTexture(gl.TEXTURE_2D, this.id)
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl[this.internalFormat], this.width, this.height, 0, gl[this.format], gl[this.type], data)
-		gl.bindTexture(gl.TEXTURE_2D, this.id)
+		gl.bindTexture(gl.TEXTURE_2D, null)
 		return this
 	}
 
