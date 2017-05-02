@@ -136,6 +136,8 @@ export class DeviceBuffer {
 	}
 }
 
+/// Extension specific methods.
+
 if (extensions.getBufferSubDataAsync) {
 	DeviceBuffer.prototype.toHostAsync = function (data) {
 		data = this._prepareLocalData(data)

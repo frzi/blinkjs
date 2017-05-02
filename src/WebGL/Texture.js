@@ -80,8 +80,8 @@ export class Texture {
 					gl.deleteBuffer(pixelBuffer)
 				}
 
-				// Read.
-				extensions.getBufferSubDataAsync.getBufferSubDataAsync(gl.PIXEL_PACK_BUFFER, 0, data, 0, 0)
+				const ext = extensions.getBufferSubDataAsync
+				ext.getBufferSubDataAsync(gl.PIXEL_PACK_BUFFER, 0, data, 0, 0)
 				.then((buffer) => {
 					cleanup()
 					resolve(data)

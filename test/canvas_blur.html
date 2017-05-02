@@ -42,7 +42,7 @@
 				samples: 5
 			}
 
-			makeTest('Buffer', function (ctx) {
+			makeTest('Buffer', function (ctx, onDone) {
 				// Get the canvas data.
 				let imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
 
@@ -65,9 +65,11 @@
 
 				// Clean up.
 				kernel.delete()
+
+				onDone()
 			})
 
-			makeTest('DeviceBuffer', function (ctx) {
+			makeTest('DeviceBuffer', function (ctx, onDone) {
 				let imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
 
 				let buffer = new blink.DeviceBuffer({
@@ -92,9 +94,11 @@
 				// Clean up.
 				kernel.delete()
 				buffer.delete()
+
+				onDone()
 			})
 
-			makeTest('DeviceBuffer (async read)', function (ctx) {
+			makeTest('DeviceBuffer (async read)', function (ctx, onDone) {
 				if (!blink.DeviceBuffer.prototype.toHostAsync) {
 					alert('WEBGL_get_buffer_sub_data_async not supported. :(')
 					return
@@ -123,6 +127,8 @@
 					// Clean up.
 					kernel.delete()
 					buffer.delete()
+
+					onDone()
 				})
 			})
 
@@ -171,9 +177,10 @@
 				
 				button.addEventListener('click', function () {
 					let then = performance.now()
-					onClick(ctx)
 					button.remove()
-					span.textContent = `${performance.now() - then} ms`
+					onClick(ctx, function () {
+						span.textContent = `${performance.now() - then} ms`
+					})
 				})
 
 				div.appendChild(button)

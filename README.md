@@ -160,6 +160,10 @@ Delete the data on the device, and, essentially, turn the DeviceBuffer's instanc
 Download the data on the device back to the host.
 `data`: (Optional) If given, it should be of the same type and size the DeviceBuffer was initialized with. If not given, __blink.js__ will initialize and return the correct TypedArray.
 
+##### DeviceBuffer.prototype.toHostAsync([data])
+Download the data on the device back to the host, asynchronously. Unlike `toHost()`, this method returns a *Promise*.
+`data`: (Optional) See DeviceBuffer.prototype.toHost. If not given, __blink.js__ will initialize the correct TypedArray, and pass it through the returned Promise's thenable.
+
 #### Kernel
 ```javascript
 let buffer = new blink.Buffer(/* ... */)

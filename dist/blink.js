@@ -265,8 +265,8 @@ class Texture {
 					gl.deleteBuffer(pixelBuffer);
 				};
 
-				// Read.
-				extensions.getBufferSubDataAsync.getBufferSubDataAsync(gl.PIXEL_PACK_BUFFER, 0, data, 0, 0)
+				const ext = extensions.getBufferSubDataAsync;
+				ext.getBufferSubDataAsync(gl.PIXEL_PACK_BUFFER, 0, data, 0, 0)
 				.then((buffer) => {
 					cleanup();
 					resolve(data);
@@ -384,6 +384,16 @@ function textureForBuffer(buffer, data = null, wrap) {
 	const [width, height] = buffer.dimensions;
 	return new Texture(internalFormat, width, height, format, type, data, bytes, ...buffer.wrap)
 }
+
+/**
+ * The `DeviceBuffer` only allocates memory on the host. Memory is
+ * allocated the moment the `DeviceBuffer` is constructed. Memory
+ * on the device is developer managed. Indeed, the device memory is
+ * retained until the developer destroys the `DeviceBuffer` using
+ * the `destroy()` method.
+ *
+ * Memory from the host can be copied to the device and vice versa.
+ */
 
 class DeviceBuffer {
 	constructor({alloc, data, type = FLOAT, vector = 1, wrap = CLAMP}) {
@@ -506,6 +516,8 @@ class DeviceBuffer {
 		return ref
 	}
 }
+
+/// Extension specific methods.
 
 if (extensions.getBufferSubDataAsync) {
 	DeviceBuffer.prototype.toHostAsync = function (data) {
