@@ -30,20 +30,6 @@ const gl = function () {
 	gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
 	gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
-	// Extensions.
-	gl.ext = {};
-
-	const retrieve = {
-		getBufferSubDataAsync: 'WEBGL_get_buffer_sub_data_async'
-	};
-
-	for (const [key, name] of Object.entries(retrieve)) {
-		let extension = gl.getExtension(name);
-		if (extension) {
-			gl.ext[key] = extension;
-		}
-	}
-
 	return gl
 }();
 
@@ -398,16 +384,6 @@ function textureForBuffer(buffer, data = null, wrap) {
 	const [width, height] = buffer.dimensions;
 	return new Texture(internalFormat, width, height, format, type, data, bytes, ...buffer.wrap)
 }
-
-/**
- * The `DeviceBuffer` only allocates memory on the host. Memory is
- * allocated the moment the `DeviceBuffer` is constructed. Memory
- * on the device is developer managed. Indeed, the device memory is
- * retained until the developer destroys the `DeviceBuffer` using
- * the `destroy()` method.
- *
- * Memory from the host can be copied to the device and vice versa.
- */
 
 class DeviceBuffer {
 	constructor({alloc, data, type = FLOAT, vector = 1, wrap = CLAMP}) {

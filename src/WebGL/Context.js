@@ -24,20 +24,6 @@ export const gl = function () {
 	gl.pixelStorei(gl.PACK_ALIGNMENT, 1)
 	gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
 
-	// Extensions.
-	gl.ext = {}
-
-	const retrieve = {
-		getBufferSubDataAsync: 'WEBGL_get_buffer_sub_data_async'
-	}
-
-	for (const [key, name] of Object.entries(retrieve)) {
-		let extension = gl.getExtension(name)
-		if (extension) {
-			gl.ext[key] = extension
-		}
-	}
-
 	return gl
 }()
 
