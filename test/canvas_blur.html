@@ -1,6 +1,7 @@
 <!doctype html>
 <html>
 	<head>
+		<meta charset="utf-8">
 		<title>Blur</title>
 		<style>
 			body                    {font-family:sans-serif;}
@@ -91,6 +92,38 @@
 				// Clean up.
 				kernel.delete()
 				buffer.delete()
+			})
+
+			makeTest('DeviceBuffer (async read)', function (ctx) {
+				if (!blink.DeviceBuffer.prototype.toHostAsync) {
+					alert('WEBGL_get_buffer_sub_data_async not supported. :(')
+					return
+				}
+
+				let imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
+
+				let buffer = new blink.DeviceBuffer({
+					data: imageData.data,
+					vector: 4,
+				})
+
+				let kernel = new blink.Kernel({
+					input: { in_color: buffer },
+					output: { out_color: buffer }
+				}, kernelSource)
+
+				for (let a = 0; a < 5; a++) {
+					kernel.exec(uniforms)
+				}
+
+				// Download to the original ImageData object.
+				buffer.toHostAsync(imageData.data).then(arr => {
+					ctx.putImageData(imageData, 0, 0)
+
+					// Clean up.
+					kernel.delete()
+					buffer.delete()
+				})
 			})
 
 

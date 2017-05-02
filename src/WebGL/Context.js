@@ -24,7 +24,41 @@ export const gl = function () {
 	gl.pixelStorei(gl.PACK_ALIGNMENT, 1)
 	gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1)
 
+	// Extensions.
+	gl.ext = {}
+
+	const retrieve = {
+		getBufferSubDataAsync: 'WEBGL_get_buffer_sub_data_async'
+	}
+
+	for (const [key, name] of Object.entries(retrieve)) {
+		let extension = gl.getExtension(name)
+		if (extension) {
+			gl.ext[key] = extension
+		}
+	}
+
 	return gl
+}()
+
+
+export const extensions = function () {
+	let extensions = {}
+
+	const retrieve = {
+		debugRendererInfo: 'WEBGL_debug_renderer_info',
+		debugShaders: 'WEBGL_debug_shaders',
+		getBufferSubDataAsync: 'WEBGL_get_buffer_sub_data_async',
+	}
+
+	for (const [key, name] of Object.entries(retrieve)) {
+		let extension = gl.getExtension(name)
+		if (extension) {
+			extensions[key] = extension
+		}
+	}
+
+	return extensions
 }()
 
 
@@ -38,7 +72,7 @@ export const device = function () {
 		vendor: gl.getParameter(gl.VENDOR),
 	}
 
-	const debugRendererInfo = gl.getExtension('WEBGL_debug_renderer_info')
+	let { debugRendererInfo } = extensions
 	if (debugRendererInfo) {
 		device.unmaskedRenderer = gl.getParameter(debugRendererInfo.UNMASKED_RENDERER_WEBGL),
 		device.unmaskedVendor = gl.getParameter(debugRendererInfo.UNMASKED_VENDOR_WEBGL)

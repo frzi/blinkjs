@@ -1,5 +1,5 @@
 import * as common from './common'
-import { device } from './WebGL/Context'
+import { device, extensions } from './WebGL/Context'
 import { Texture } from './WebGL/Texture'
 
 import { readablesMap, writablesMap } from './Buffer'
@@ -80,18 +80,8 @@ export class DeviceBuffer {
 	}
 
 	toHost(data) {
-		if (!data) {
-			const typedArray = common.arrayConstructors.get(this.type)
-			data = new typedArray(this.size)
-		}
-
-		// Cast Uint8ClampedArray to Uint8Array.
-		let ref = data
-		if (data instanceof Uint8ClampedArray) {
-			ref = new Uint8Array(data.buffer)
-		}
-		this._getReadable().read(ref)
-
+		data = this._prepareLocalData(data)
+		this._getReadable().read(data)
 		return data
 	}
 
@@ -128,5 +118,27 @@ export class DeviceBuffer {
 			readablesMap.set(this, writableCopy)
 			writablesMap.delete(this)
 		}
+	}
+
+	_prepareLocalData(data) {
+		if (!data) {
+			const typedArray = common.arrayConstructors.get(this.type)
+			data = new typedArray(this.size)
+		}
+
+		// Cast Uint8ClampedArray to Uint8Array.
+		let ref = data
+		if (data instanceof Uint8ClampedArray) {
+			ref = new Uint8Array(data.buffer)
+		}
+
+		return ref
+	}
+}
+
+if (extensions.getBufferSubDataAsync) {
+	DeviceBuffer.prototype.toHostAsync = function (data) {
+		data = this._prepareLocalData(data)
+		return this._getReadable().readAsync(data)
 	}
 }

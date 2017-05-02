@@ -1,4 +1,4 @@
-import { gl } from './Context'
+import { gl, extensions } from './Context'
 
 /**
  * Internal (helper) class.
@@ -62,6 +62,36 @@ export class Texture {
 			gl.readPixels(0, 0, this.width, this.height, gl[this.format], gl[this.type], data, 0)
 		})
 		return true
+	}
+
+	readAsync(data) {
+		return new Promise((resolve, reject) => {
+			withTemporaryFBO(() => {
+				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.id, 0)
+				gl.readBuffer(gl.COLOR_ATTACHMENT0)
+
+				let pixelBuffer = gl.createBuffer()
+				gl.bindBuffer(gl.PIXEL_PACK_BUFFER, pixelBuffer)
+				gl.bufferData(gl.PIXEL_PACK_BUFFER, data.byteLength, gl.STATIC_READ)
+				gl.readPixels(0, 0, this.width, this.height, gl[this.format], gl[this.type], 0)
+
+				const cleanup = () => {
+					gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null)
+					gl.deleteBuffer(pixelBuffer)
+				}
+
+				// Read.
+				extensions.getBufferSubDataAsync.getBufferSubDataAsync(gl.PIXEL_PACK_BUFFER, 0, data, 0, 0)
+				.then((buffer) => {
+					cleanup()
+					resolve(data)
+				})
+				.catch((err) => {
+					cleanup()
+					reject(err)
+				})
+			})
+		})
 	}
 }
 

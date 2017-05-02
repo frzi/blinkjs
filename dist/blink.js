@@ -30,7 +30,41 @@ const gl = function () {
 	gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
 	gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
 
+	// Extensions.
+	gl.ext = {};
+
+	const retrieve = {
+		getBufferSubDataAsync: 'WEBGL_get_buffer_sub_data_async'
+	};
+
+	for (const [key, name] of Object.entries(retrieve)) {
+		let extension = gl.getExtension(name);
+		if (extension) {
+			gl.ext[key] = extension;
+		}
+	}
+
 	return gl
+}();
+
+
+const extensions = function () {
+	let extensions = {};
+
+	const retrieve = {
+		debugRendererInfo: 'WEBGL_debug_renderer_info',
+		debugShaders: 'WEBGL_debug_shaders',
+		getBufferSubDataAsync: 'WEBGL_get_buffer_sub_data_async',
+	};
+
+	for (const [key, name] of Object.entries(retrieve)) {
+		let extension = gl.getExtension(name);
+		if (extension) {
+			extensions[key] = extension;
+		}
+	}
+
+	return extensions
 }();
 
 
@@ -44,7 +78,7 @@ const device = function () {
 		vendor: gl.getParameter(gl.VENDOR),
 	};
 
-	const debugRendererInfo = gl.getExtension('WEBGL_debug_renderer_info');
+	let { debugRendererInfo } = extensions;
 	if (debugRendererInfo) {
 		device.unmaskedRenderer = gl.getParameter(debugRendererInfo.UNMASKED_RENDERER_WEBGL),
 		device.unmaskedVendor = gl.getParameter(debugRendererInfo.UNMASKED_VENDOR_WEBGL);
@@ -168,9 +202,6 @@ function closestDimensions(area) {
 	return [width, area / width]
 }
 
-/**
- * Internal (helper) class.
- */
 class Texture {
 	constructor(internalFormat, width, height, format, type, data, alignment, wrapS, wrapT) {
 		const previousTex = gl.getParameter(gl.TEXTURE_BINDING_2D);
@@ -231,6 +262,36 @@ class Texture {
 		});
 		return true
 	}
+
+	readAsync(data) {
+		return new Promise((resolve, reject) => {
+			withTemporaryFBO(() => {
+				gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.id, 0);
+				gl.readBuffer(gl.COLOR_ATTACHMENT0);
+
+				let pixelBuffer = gl.createBuffer();
+				gl.bindBuffer(gl.PIXEL_PACK_BUFFER, pixelBuffer);
+				gl.bufferData(gl.PIXEL_PACK_BUFFER, data.byteLength, gl.STATIC_READ);
+				gl.readPixels(0, 0, this.width, this.height, gl[this.format], gl[this.type], 0);
+
+				const cleanup = () => {
+					gl.bindBuffer(gl.PIXEL_PACK_BUFFER, null);
+					gl.deleteBuffer(pixelBuffer);
+				};
+
+				// Read.
+				extensions.getBufferSubDataAsync.getBufferSubDataAsync(gl.PIXEL_PACK_BUFFER, 0, data, 0, 0)
+				.then((buffer) => {
+					cleanup();
+					resolve(data);
+				})
+				.catch((err) => {
+					cleanup();
+					reject(err);
+				});
+			});
+		})
+	}
 }
 
 function withTemporaryFBO(fn) {
@@ -241,22 +302,6 @@ function withTemporaryFBO(fn) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, previousFBO);
 	gl.deleteFramebuffer(fbo);
 }
-
-/**
- * The `Buffer` object allocates memory on the host. Once the `Buffer`
- * is requested on the device (GPU), the contents of `Buffer`'s data
- * are allocated and copied from the host to the device.
- * 
- * Once te device is done computing, the contents of the `Buffer` on
- * the device are copied back to the host.
- *
- * All device copies are stored and mainted through `BufferCache`.
- *
- * NOTE: Data of a `Buffer` are NOT retained on the device. Once the
- * data has been copied back to the host, the device copy will be
- * destroyed immediately. To retain data on the device, please use
- * the `DeviceBuffer` object.
- */
 
 let readablesMap = new WeakMap();
 let writablesMap = new WeakMap();
@@ -430,18 +475,8 @@ class DeviceBuffer {
 	}
 
 	toHost(data) {
-		if (!data) {
-			const typedArray = arrayConstructors.get(this.type);
-			data = new typedArray(this.size);
-		}
-
-		// Cast Uint8ClampedArray to Uint8Array.
-		let ref = data;
-		if (data instanceof Uint8ClampedArray) {
-			ref = new Uint8Array(data.buffer);
-		}
-		this._getReadable().read(ref);
-
+		data = this._prepareLocalData(data);
+		this._getReadable().read(data);
 		return data
 	}
 
@@ -479,6 +514,28 @@ class DeviceBuffer {
 			writablesMap.delete(this);
 		}
 	}
+
+	_prepareLocalData(data) {
+		if (!data) {
+			const typedArray = arrayConstructors.get(this.type);
+			data = new typedArray(this.size);
+		}
+
+		// Cast Uint8ClampedArray to Uint8Array.
+		let ref = data;
+		if (data instanceof Uint8ClampedArray) {
+			ref = new Uint8Array(data.buffer);
+		}
+
+		return ref
+	}
+}
+
+if (extensions.getBufferSubDataAsync) {
+	DeviceBuffer.prototype.toHostAsync = function (data) {
+		data = this._prepareLocalData(data);
+		return this._getReadable().readAsync(data)
+	};
 }
 
 var vertexSource = `#version 300 es
@@ -493,7 +550,6 @@ void main() {
 	bl_UV = pos * 0.5 + 0.5;
 }`;
 
-// Keep the vertex shader in memory.
 const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
 
 /**
@@ -626,15 +682,6 @@ highp uint bl_Id() {
 	highp ivec2 uv = ivec2(bl_UV * vec2(bl_Size));
 	return uint(uv.x + uv.y * bl_Size.x);
 }`;
-
-/**
- * Inputs and outputs have to be defined beforehand. 
- * Although this means the pipeline is *fixed*, it does allow you
- * to swap Buffers before executing the `Kernel`.
- *
- * Depending on the number of allowed color attachments, a `Kernel`
- * may have to split the number of executions in numerous steps.
- */
 
 class Kernel {
 	constructor(io, source) {
@@ -814,8 +861,8 @@ function prepareFragmentShader(inputs, outputDescriptors, source) {
 
 const VERSION = {
 	major: 0,
-	minor: 2,
-	patch: 4,
+	minor: 3,
+	patch: 0,
 	toString() { return `${this.major}.${this.minor}.${this.patch}` }
 };
 
@@ -839,3 +886,4 @@ exports.MIRROR = MIRROR;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
+//# sourceMappingURL=blink.js.map
