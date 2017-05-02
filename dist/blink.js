@@ -168,6 +168,9 @@ function closestDimensions(area) {
 	return [width, area / width]
 }
 
+/**
+ * Internal (helper) class.
+ */
 class Texture {
 	constructor(internalFormat, width, height, format, type, data, alignment, wrapS, wrapT) {
 		const previousTex = gl.getParameter(gl.TEXTURE_BINDING_2D);
@@ -216,7 +219,7 @@ class Texture {
 	upload(data) {
 		gl.bindTexture(gl.TEXTURE_2D, this.id);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl[this.internalFormat], this.width, this.height, 0, gl[this.format], gl[this.type], data);
-		gl.bindTexture(gl.TEXTURE_2D, this.id);
+		gl.bindTexture(gl.TEXTURE_2D, null);
 		return this
 	}
 
@@ -238,6 +241,22 @@ function withTemporaryFBO(fn) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, previousFBO);
 	gl.deleteFramebuffer(fbo);
 }
+
+/**
+ * The `Buffer` object allocates memory on the host. Once the `Buffer`
+ * is requested on the device (GPU), the contents of `Buffer`'s data
+ * are allocated and copied from the host to the device.
+ * 
+ * Once te device is done computing, the contents of the `Buffer` on
+ * the device are copied back to the host.
+ *
+ * All device copies are stored and mainted through `BufferCache`.
+ *
+ * NOTE: Data of a `Buffer` are NOT retained on the device. Once the
+ * data has been copied back to the host, the device copy will be
+ * destroyed immediately. To retain data on the device, please use
+ * the `DeviceBuffer` object.
+ */
 
 let readablesMap = new WeakMap();
 let writablesMap = new WeakMap();
@@ -334,6 +353,16 @@ function textureForBuffer(buffer, data = null, wrap) {
 	const [width, height] = buffer.dimensions;
 	return new Texture(internalFormat, width, height, format, type, data, bytes, ...buffer.wrap)
 }
+
+/**
+ * The `DeviceBuffer` only allocates memory on the host. Memory is
+ * allocated the moment the `DeviceBuffer` is constructed. Memory
+ * on the device is developer managed. Indeed, the device memory is
+ * retained until the developer destroys the `DeviceBuffer` using
+ * the `destroy()` method.
+ *
+ * Memory from the host can be copied to the device and vice versa.
+ */
 
 class DeviceBuffer {
 	constructor({alloc, data, type = FLOAT, vector = 1, wrap = CLAMP}) {
@@ -440,9 +469,15 @@ class DeviceBuffer {
 
 	_finish() {
 		// Swap.
-		this._getReadable().delete();
-		readablesMap.set(this, this._getWritable());
-		writablesMap.delete(this);
+		let writableCopy = this._getWritable();
+		if (writableCopy) {
+			let readableCopy = this._getReadable();
+			if (readableCopy) {
+				readableCopy.delete();
+			}
+			readablesMap.set(this, writableCopy);
+			writablesMap.delete(this);
+		}
 	}
 }
 
@@ -458,6 +493,7 @@ void main() {
 	bl_UV = pos * 0.5 + 0.5;
 }`;
 
+// Keep the vertex shader in memory.
 const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
 
 /**
@@ -779,7 +815,7 @@ function prepareFragmentShader(inputs, outputDescriptors, source) {
 const VERSION = {
 	major: 0,
 	minor: 2,
-	patch: 3,
+	patch: 4,
 	toString() { return `${this.major}.${this.minor}.${this.patch}` }
 };
 
@@ -803,4 +839,3 @@ exports.MIRROR = MIRROR;
 Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-//# sourceMappingURL=blink.js.map
