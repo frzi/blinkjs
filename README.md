@@ -158,11 +158,15 @@ Delete the data on the device, and, essentially, turn the DeviceBuffer's instanc
 
 ##### DeviceBuffer.prototype.toHost([data])
 Download the data on the device back to the host.
+
 `data`: (Optional) If given, it should be of the same type and size the DeviceBuffer was initialized with. If not given, __blink.js__ will initialize and return the correct TypedArray.
 
-##### DeviceBuffer.prototype.toHostAsync([data])
-Download the data on the device back to the host, asynchronously. Unlike `toHost()`, this method returns a *Promise*.
+##### DeviceBuffer.prototype.toHostAsync([data])<sup>[1]</sup>
+Download the data on the device back to the host, asynchronously. Unlike `toHost()`, this method returns a *Promise*. 
+
 `data`: (Optional) See DeviceBuffer.prototype.toHost. If not given, __blink.js__ will initialize the correct TypedArray, and pass it through the returned Promise's thenable.
+
+NOTE: Only available if the [`WEBGL_get_buffer_sub_data_async`](https://www.khronos.org/registry/webgl/extensions/WEBGL_get_buffer_sub_data_async/) extension is supported.
 
 #### Kernel
 ```javascript

@@ -188,6 +188,9 @@ function closestDimensions(area) {
 	return [width, area / width]
 }
 
+/**
+ * Internal (helper) class.
+ */
 class Texture {
 	constructor(internalFormat, width, height, format, type, data, alignment, wrapS, wrapT) {
 		const previousTex = gl.getParameter(gl.TEXTURE_BINDING_2D);
@@ -288,6 +291,22 @@ function withTemporaryFBO(fn) {
 	gl.bindFramebuffer(gl.FRAMEBUFFER, previousFBO);
 	gl.deleteFramebuffer(fbo);
 }
+
+/**
+ * The `Buffer` object allocates memory on the host. Once the `Buffer`
+ * is requested on the device (GPU), the contents of `Buffer`'s data
+ * are allocated and copied from the host to the device.
+ * 
+ * Once te device is done computing, the contents of the `Buffer` on
+ * the device are copied back to the host.
+ *
+ * All device copies are stored and mainted through `BufferCache`.
+ *
+ * NOTE: Data of a `Buffer` are NOT retained on the device. Once the
+ * data has been copied back to the host, the device copy will be
+ * destroyed immediately. To retain data on the device, please use
+ * the `DeviceBuffer` object.
+ */
 
 let readablesMap = new WeakMap();
 let writablesMap = new WeakMap();
@@ -538,6 +557,7 @@ void main() {
 	bl_UV = pos * 0.5 + 0.5;
 }`;
 
+// Keep the vertex shader in memory.
 const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);
 
 /**
@@ -670,6 +690,15 @@ highp uint bl_Id() {
 	highp ivec2 uv = ivec2(bl_UV * vec2(bl_Size));
 	return uint(uv.x + uv.y * bl_Size.x);
 }`;
+
+/**
+ * Inputs and outputs have to be defined beforehand. 
+ * Although this means the pipeline is *fixed*, it does allow you
+ * to swap Buffers before executing the `Kernel`.
+ *
+ * Depending on the number of allowed color attachments, a `Kernel`
+ * may have to split the number of executions in numerous steps.
+ */
 
 class Kernel {
 	constructor(io, source) {
@@ -868,10 +897,9 @@ exports.UINT32 = UINT32;
 exports.UINT16 = UINT16;
 exports.UINT8 = UINT8;
 exports.CLAMP = CLAMP;
-exports.REPEAT = REPEAT;
 exports.MIRROR = MIRROR;
+exports.REPEAT = REPEAT;
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
 })));
-//# sourceMappingURL=blink.js.map
