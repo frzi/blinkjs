@@ -38,7 +38,7 @@ export const arrayTypes = new Map([
 ])
 
 
-/// Hands out all the types associated with a Buffer's data.
+// Hands out all the types associated with a Buffer's data.
 export function formatInfo(dataType, vectorSize = 1) {
 	const { bytes, integer, unsigned } = dataType
 
@@ -81,7 +81,7 @@ export function formatInfo(dataType, vectorSize = 1) {
 }
 
 
-/// http://stackoverflow.com/a/16267018/4757748
+// http://stackoverflow.com/a/16267018/4757748
 export function closestDimensions(area) {
 	let width = Math.floor(Math.sqrt(area))
 	while (area % width && width > 1) {
