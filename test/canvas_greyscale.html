@@ -68,6 +68,19 @@
 				buffer.delete()
 			})
 
+			makeTest('CPU', function (ctx) {
+				let imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height)
+				let buffer = imageData.data
+
+				for (let y = 0, i = 0; y < ctx.canvas.height; y++) {
+					for (let x = 0; x < ctx.canvas.width; x++, i += 4) {
+						let grey = (buffer[i] + buffer[i + 1] + buffer[i + 2]) / 3
+						buffer[i] = buffer[i + 1] = buffer[i + 2] = grey
+					}
+				}
+
+				ctx.putImageData(imageData, 0, 0)
+			})
 
 			function makeTest(title, onClick) {
 				let div = document.createElement('div')

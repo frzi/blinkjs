@@ -22,17 +22,15 @@ const defines = {
 }
 
 export default {
-	entry: 'src/index.js',
+	input: 'src/index.js',
 	plugins: [
 		shader,
 		jscc({ values: defines }),
 	],
-	targets: [
-		{
-			dest: 'dist/blink.js',
-			format: 'umd',
-			moduleName: 'blink',
-			sourceMap: _DEVMODE,
-		}
-	],
+	output: {
+		file: 'dist/blink.js',
+		format: 'umd',
+		name: 'blink',
+		sourcemap: _DEVMODE
+	}
 }

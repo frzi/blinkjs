@@ -3,14 +3,15 @@
   "version": "0.3.0",
   "description": "Easy GPGPU on the web, powered by WebGL 2.0.",
   "main": "dist/blink.js",
+  "module": "src/index.js",
   "homepage": "https://github.com/frzi/blinkjs",
   "repository": "frzi/blinkjs",
   "scripts": {
     "dev": "rollup -c --dev -w",
     "build": "rollup -c",
-    "minify": "babili dist/blink.js --out-file dist/blink.min.js",
+    "minify": "minify dist/blink.js --out-file dist/blink.min.js",
     "final": "npm run build && npm run minify",
-    "prepublish": "npm run final"
+    "prepublishOnly": "npm run final"
   },
   "keywords": [
     "blink",
@@ -22,9 +23,8 @@
   "author": "frzi",
   "license": "MIT",
   "devDependencies": {
-    "babili": "^0.1.4",
-    "rollup": "^0.45.2",
-    "rollup-plugin-jscc": "^0.3.3",
-    "rollup-watch": "^4.3.1"
+    "babel-minify": "^0.2.0",
+    "rollup": "^0.49.3",
+    "rollup-plugin-jscc": "^0.3.3"
   }
 }
