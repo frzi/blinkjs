@@ -14,5 +14,7 @@ export const VERSION = {
 	major: $_MAJOR,
 	minor: $_MINOR,
 	patch: $_PATCH,
-	toString() { return `${this.major}.${this.minor}.${this.patch}` }
+	toString() {
+		return `${this.major}.${this.minor}.${this.patch}`
+	}
 }

@@ -10,10 +10,10 @@ import { Texture } from './WebGL/Texture'
  * Once te device is done computing, the contents of the `Buffer` on
  * the device are copied back to the host.
  *
- * All device copies are stored and mainted through `BufferCache`.
+ * All device copies are stored and maintained via WeakMaps.
  *
- * NOTE: Data of a `Buffer` are NOT retained on the device. Once the
- * data has been copied back to the host, the device copy will be
+ * NOTE: The data of a `Buffer` is NOT retained on the device. Once
+ * the data has been copied back to the host, the device copy will be
  * destroyed immediately. To retain data on the device, please use
  * the `DeviceBuffer` object.
  */
@@ -108,7 +108,7 @@ export class Buffer {
 	}
 }
 
-function textureForBuffer(buffer, data = null, wrap) {
+function textureForBuffer(buffer, data = null) {
 	const { bytes, internalFormat, format, type } = buffer.formatInfo
 	const [width, height] = buffer.dimensions
 	return new Texture(internalFormat, width, height, format, type, data, bytes, ...buffer.wrap)

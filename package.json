@@ -1,6 +1,6 @@
 {
   "name": "blink.js",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Easy GPGPU on the web, powered by WebGL 2.0.",
   "main": "dist/blink.js",
   "module": "src/index.js",
@@ -23,8 +23,8 @@
   "author": "frzi",
   "license": "MIT",
   "devDependencies": {
-    "babel-minify": "^0.2.0",
-    "rollup": "^0.49.3",
+    "babel-minify": "^0.3.0",
+    "rollup": "^0.57.1",
     "rollup-plugin-jscc": "^0.3.3"
   }
 }

@@ -8,7 +8,7 @@ blink.js
 [![Dependencies][dependencies-badge]][dependencies-badge-url]
 [![Dev Dependencies][devdependencies-badge]][devdependencies-badge-url]
 
-__blink.js__ (not to be confused with [Blink](https://www.chromium.org/blink), the Chromium render engine) is a small, easy to use GPGPU library for the web, exploiting the power of WebGL 2.0. WebCL is pretty much a dead end now and compute shaders are not (yet) a part of the WebGL specs. __blink.js__ is here to fill that void in your compute-loving heart.
+__blink.js__ (not to be confused with [Blink](https://www.chromium.org/blink), the Chromium render engine) is a small, easy to use GPGPU library for the web, exploiting the power of WebGL 2.0.
 
 Please note: __blink.js__ uses its own WebGL 2.0 context. Which means it's not pluggable with other WebGL frameworks. Though, theoretically, you could use blink.js' context as your main WebGL context.
 
@@ -31,6 +31,7 @@ Please note: __blink.js__ uses its own WebGL 2.0 context. Which means it's not p
 
 
 ## Installation
+
 Download the `blink.min.js` file from the `dist` folder. Then reference it in the HTML using the `<script>` tag.
 ```html
 <script src="blink.min.js"></script>
@@ -106,24 +107,27 @@ buffer.data[0] = 1
 ```
 The Buffer class represents an array of values that can be read from and written to on the device. A Buffer's data is copied to the device the moment it's required. After a Kernel is done executing all its steps, the data on the device is copied back to the host, the data on the device is destroyed immediately.
 
-##### new Buffer({ alloc|data, type, vector, wrap })
-Initialize a new buffer using the given Object containing the following parameters:
+* **new Buffer({ alloc|data, type, vector, wrap })**
 
-`alloc`: Initialize an (0 filled) ArrayBuffer with this size. Note: The given number represents the number of elements of `type`. **Not** the size in bytes.
+    Initialize a new buffer using the given Object containing the following parameters:
 
-`data`: Opposed to having __blink.js__ initialize the data, you can parse a TypedArray. The Buffer will hold a reference to this TypedArray. Note: If both `alloc` and `data` are present in the Object, `alloc` is chosen.
+    * `alloc`: Initialize an (0 filled) ArrayBuffer with this size. Note: The given number represents the number of elements of `type`. **Not** the size in bytes.
 
-`type`: The type of primitives of the Buffer. See [Types](#types). Default is FLOAT.
+    * `data`: Opposed to having __blink.js__ initialize the data, you can parse a TypedArray. The Buffer will hold a reference to this TypedArray. Note: If both `alloc` and `data` are present in the Object, `alloc` is chosen.
 
-`vector`: Number of elements in the vector. Can be 1, 2 or 4. Default is 1.
+    * `type`: The type of primitives of the Buffer. See [Types](#types). Default is FLOAT.
 
-`wrap`: Texture wrap mode. Can either be an array for S and T or a single constant. See [Wrap modes](#wrap-modes). Default is CLAMP.
+    * `vector`: Number of elements in the vector. Can be 1, 2 or 4. Default is 1.
 
-##### Buffer.prototype.data
-Reference to the TypedArray.
+    * `wrap`: Texture wrap mode. Can either be an array for S and T or a single constant. See [Wrap modes](#wrap-modes). Default is CLAMP.
 
-##### Buffer.prototype.copy()
-Returns a copy of the Buffer. The new instance will also hold a copy of the data allocated on the host.
+* **Buffer.prototype.data**
+
+    Reference to the TypedArray.
+
+* **Buffer.prototype.copy()**
+
+    Returns a copy of the Buffer. The new instance will also hold a copy of the data allocated on the host.
 
 #### DeviceBuffer
 ```javascript
@@ -144,29 +148,36 @@ Memory is allocated (or copied) the moment the DeviceBuffer is initialized. Memo
 
 Data can be downloaded to the host and uploaded to the device using the `toHost` and `toDevice` methods respectively.
 
-##### new DeviceBuffer({ alloc|data, type, vector })
-See `new Buffer()`. Only major difference is that no data is allocated nor referenced on the host.
+* **new DeviceBuffer({ alloc|data, type, vector })**
 
-##### DeviceBuffer.prototype.copy()
-Returns a copy of the DeviceBuffer. The data on the device is also copied.
+    See `new Buffer()`. Only major difference is that no data is allocated nor referenced on the host.
 
-##### DeviceBuffer.prototype.delete()
-Delete the data on the device, and, essentially, turn the DeviceBuffer's instance unusable.
+* **DeviceBuffer.prototype.copy()**
 
-##### DeviceBuffer.prototype.toDevice(data)
-`data`: A TypedArray (of the same type and size the DeviceBuffer was initialized with) whose data will be uploaded to the device.
+    Returns a copy of the DeviceBuffer. The data on the device is also copied.
 
-##### DeviceBuffer.prototype.toHost([data])
-Download the data on the device back to the host.
+* **DeviceBuffer.prototype.delete()**
 
-`data`: (Optional) If given, it should be of the same type and size the DeviceBuffer was initialized with. If not given, __blink.js__ will initialize and return the correct TypedArray.
+    Delete the data on the device, and, essentially, turn the DeviceBuffer's instance unusable.
 
-##### DeviceBuffer.prototype.toHostAsync([data])<sup>[1]</sup>
-Download the data on the device back to the host, asynchronously. Unlike `toHost()`, this method returns a *Promise*. 
+* **DeviceBuffer.prototype.toDevice(data)**
 
-`data`: (Optional) See DeviceBuffer.prototype.toHost. If not given, __blink.js__ will initialize the correct TypedArray, and pass it through the returned Promise's thenable.
+    * `data`: A TypedArray (of the same type and size the DeviceBuffer was initialized with) whose data will be uploaded to the device.
+
+* **DeviceBuffer.prototype.toHost([data])**
+
+    Download the data on the device back to the host.
+
+    * `data`: (Optional) If given, it should be of the same type and size the DeviceBuffer was initialized with. If not given, __blink.js__ will initialize and return the correct TypedArray.
+
+* **DeviceBuffer.prototype.toHostAsync([data])**
+
+    Download the data on the device back to the host, asynchronously. Unlike `toHost()`, this method returns a *Promise*. 
+
+    * `data`: (Optional) See DeviceBuffer.prototype.toHost. If not given, __blink.js__ will initialize the correct TypedArray, and pass it through the returned Promise's thenable.
 
 NOTE: Only available if the [`WEBGL_get_buffer_sub_data_async`](https://www.khronos.org/registry/webgl/extensions/WEBGL_get_buffer_sub_data_async/) extension is supported.
+
 
 #### Kernel
 ```javascript
@@ -186,18 +197,26 @@ kernel.exec({ multiplier: 2 })
 kernel.delete()
 ```
 
-##### new Kernel({ input, output }, shaderSource)
-Initialize a new Kernel with the given inputs, outputs and (fragment) shader source.
-`input`: (Optional) A key-value Object, where keys are the names of the inputs and the values a reference to either a Buffer or DeviceBuffer. The input names become available in the shader to read from their respective buffer.
-`output`: Same as input, except for writing to buffers.
-`shaderSource`: Source of the shader as a String.
+* **new Kernel({ input, output }, shaderSource)**
 
-##### Kernel.prototype.exec([uniforms])
-Execute the Kernel. 
-`uniforms`: (Optional) If given, it should be a key-value Object with the keys being the uniforms' names and values their value.
+    Initialize a new Kernel with the given inputs, outputs and (fragment) shader source.
 
-##### Kernel.prototype.delete()
-Delete all associated shaders and programs on the device. Essentially rendering the Kernel's instance as unusable.
+    * `input`: (Optional) A key-value Object, where keys are the names of the inputs and the values a reference to either a Buffer or DeviceBuffer. The input names become available in the shader to read from their respective buffer.
+
+    * `output`: Same as input, except for writing to buffers.
+    
+    * `shaderSource`: Source of the shader as a String.
+
+* **Kernel.prototype.exec([uniforms])**
+
+    Execute the Kernel. 
+
+    * `uniforms`: (Optional) If given, it should be a key-value Object with the keys being the uniforms' names and values their value.
+
+* **Kernel.prototype.delete()**
+
+    Delete all associated shaders and programs on the device. Essentially rendering the Kernel's instance as unusable.
+
 
 ### Types
 * `blink.FLOAT` (`Float32Array`)
@@ -246,7 +265,7 @@ Different combinations of operating systems, browsers and hardware may not suppo
 See [COMPATIBILITY.md](./COMPATIBILITY.md) for a personally tested list of compatibility. Or open [test/report.html](./test/report.html) in your browser to test yourself.
 
 ## Built for today
-Both Firefox 51 and Chrome 56 (on desktop) support WebGL 2.0 now. As of writing this, WebGL 2.0 support across other browsers varies between 'disabled by default' to not 'supported at all'.
+Both Firefox 59 and Chrome 65 (on desktop) support WebGL 2.0 now. As of writing this readme, the status of WebGL 2.0 for Safari is declared as [Supported in preview](https://webkit.org/status/#specification-webgl-2) (Safari Technology Preview). However, shaders are unable to successfully compile, thus rendering WebGL 2.0 support as pretty much unusable. There is no concrete answer whether Safari will fully support WebGL 2.0 in the future. 
 
 __blink.js__ uses ES6 syntax/features that are __not__ transpiled or polyfilled for ES5. [Babel](https://babeljs.io) is only used to minify the final code, using the [babili](https://github.com/babel/babili) preset.
 
@@ -254,6 +273,10 @@ __blink.js__ uses ES6 syntax/features that are __not__ transpiled or polyfilled 
 [headless-gl](https://github.com/stackgl/headless-gl) - create WebGL contexts in Node.js, powered by ANGLE.
 
 [turbo.js](https://github.com/turbo/js) - a similar GPGPU library for the browser, using WebGL 1.0.
+
+[WebGP.js](https://www.npmjs.com/package/webgp) - another similar GPGPU library for the browser.
+
+[gpu.js](https://www.npmjs.com/package/gpu.js) - transpile and run Javascript code on the GPU.
 
 [NOOOCL](https://github.com/unbornchikken/NOOOCL) - OpenCL bindings for Node.js.
 

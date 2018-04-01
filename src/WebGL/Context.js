@@ -27,7 +27,6 @@ export const gl = function () {
 	return gl
 }()
 
-
 export const extensions = function () {
 	let extensions = {}
 
@@ -47,7 +46,6 @@ export const extensions = function () {
 	return extensions
 }()
 
-
 export const device = function () {
 	let device = {
 		glslVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
@@ -65,27 +63,4 @@ export const device = function () {
 	}
 
 	return Object.freeze(device)
-}()
-
-
-export const quadVAO = function () {
-	// Quad vertices.
-	const vertices = new Float32Array([-1, 1, -1, -1, 1, 1, 1, -1])
-	let vbo = gl.createBuffer()
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW)
-	gl.bindBuffer(gl.ARRAY_BUFFER, null)
-
-	// Quad VAO.
-	let vao = gl.createVertexArray()
-	gl.bindVertexArray(vao)
-
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.enableVertexAttribArray(0)
-	gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0)
-
-	gl.bindVertexArray(null)
-	gl.bindBuffer(gl.ARRAY_BUFFER, null)
-
-	return vao
 }()

@@ -60,11 +60,11 @@ export class Program {
 			fnName += 'v'
 		}
 
-		if (fnName.indexOf('Matrix') == -1) {
-			gl[fnName](id, ...values)
+		if (fnName.includes('Matrix')) {
+			gl[fnName](id, false, ...values)
 		}
 		else {
-			gl[fnName](id, false, ...values)
+			gl[fnName](id, ...values)
 		}
 	}
 }

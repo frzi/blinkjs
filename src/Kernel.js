@@ -1,4 +1,4 @@
-import { device, gl, quadVAO } from './WebGL/Context'
+import { device, gl } from './WebGL/Context'
 import { Program } from './WebGL/Program'
 import { Buffer } from './Buffer'
 import fragTemplate from './shaders/template.frag'
@@ -11,7 +11,6 @@ import fragTemplate from './shaders/template.frag'
  * Depending on the number of allowed color attachments, a `Kernel`
  * may have to split the number of executions in numerous steps.
  */
-
 export class Kernel {
 	constructor(io, source) {
 		this.inputs = io.in || io.input || io.inputs || {}
@@ -80,9 +79,7 @@ export class Kernel {
 	}
 
 	delete() {
-		this.steps.forEach((obj) => {
-			obj.program.delete()
-		})
+		this.steps.forEach(step => step.program.delete())
 		this.steps.clear()
 
 		delete this.inputs
@@ -138,10 +135,8 @@ export class Kernel {
 				program.setUniform(name, index)
 			}
 
-			gl.bindVertexArray(quadVAO)
 			gl.drawBuffers(step.out.map((_, i) => gl.COLOR_ATTACHMENT0 + i))
-			gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
-			gl.bindVertexArray(null)
+			gl.drawArrays(gl.TRIANGLES, 0, 3)
 
 			// Unpacking time. But only for `Buffer`s.
 			for (const [index, name] of step.out.entries()) {

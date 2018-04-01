@@ -5,7 +5,7 @@ import { Texture } from './WebGL/Texture'
 import { readablesMap, writablesMap } from './Buffer'
 
 /**
- * The `DeviceBuffer` only allocates memory on the host. Memory is
+ * The `DeviceBuffer` only allocates memory on the device. Memory is
  * allocated the moment the `DeviceBuffer` is constructed. Memory
  * on the device is developer managed. Indeed, the device memory is
  * retained until the developer destroys the `DeviceBuffer` using
@@ -13,7 +13,6 @@ import { readablesMap, writablesMap } from './Buffer'
  *
  * Memory from the host can be copied to the device and vice versa.
  */
-
 export class DeviceBuffer {
 	constructor({alloc, data, type = common.FLOAT, vector = 1, wrap = common.CLAMP}) {
 		this.vector = Math.min(Math.max(vector, 1), 4)
