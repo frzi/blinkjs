@@ -31,7 +31,13 @@ declare namespace blink {
 	/**
 	 * Constants.
 	 */
-	type DataType = number
+	type DataType = {
+		name: string
+		bytes: number
+		integer: boolean
+		unsigned: boolean
+	}
+
 	const FLOAT: DataType
 	const INT32: DataType
 	const INT16: DataType

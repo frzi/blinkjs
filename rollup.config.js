@@ -7,7 +7,7 @@ const [_MAJOR, _MINOR, _PATCH] = pkg.version.split('.')
 
 const shader = {
 	load(file) {
-		if (!/(\.vert|\.frag|\.vsh|\.fsh|\.glsl)$/gi.test(file)) {
+		if (!/\.(vert|frag|vsh|fsh|glsl)$/gi.test(file)) {
 			return 
 		}
 
