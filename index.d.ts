@@ -91,6 +91,7 @@ declare namespace blink {
 		delete()
 		toDevice(data: T)
 		toHost(data?: T): T
+		toHostAsync?(data?: T): Promise<T>
 	}
 
 	/**
