@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+
+    },
+    "files": [
+        "index.d.ts"
+    ]
+}

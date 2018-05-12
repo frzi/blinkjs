@@ -1,8 +1,9 @@
 import fs from 'fs'
+import pkg from './package.json'
 import jscc from 'rollup-plugin-jscc'
 
 const _DEVMODE = ~process.argv.indexOf('--dev') || null
-const [_MAJOR, _MINOR, _PATCH] = require('./package.json').version.split('.')
+const [_MAJOR, _MINOR, _PATCH] = pkg.version.split('.')
 
 const shader = {
 	load(file) {
