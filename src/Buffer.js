@@ -40,17 +40,21 @@ export class Buffer {
 			throw new Error('Buffer size exceeds device limit.')
 		}
 
-		if (alloc != null) {
+		if (alloc != null && data == null) {
 			const typedArray = common.arrayConstructors.get(type)
 			this.data = new typedArray(size)
 		}
-		else {
+		else if (data != null && alloc == null) {
 			if (data instanceof Uint8ClampedArray) {
 				this.data = new Uint8Array(data.buffer)
 			}
 			else {
 				this.data = data
 			}
+		}
+		else
+		{
+			throw new Error('data, alloc are provided at the same time.');
 		}
 	}
 
