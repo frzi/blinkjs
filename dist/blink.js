@@ -64,7 +64,8 @@
 
 		let { debugRendererInfo } = extensions;
 		if (debugRendererInfo) {
-			device.unmaskedRenderer = gl.getParameter(debugRendererInfo.UNMASKED_RENDERER_WEBGL), device.unmaskedVendor = gl.getParameter(debugRendererInfo.UNMASKED_VENDOR_WEBGL);
+			device.unmaskedRenderer = gl.getParameter(debugRendererInfo.UNMASKED_RENDERER_WEBGL),
+			device.unmaskedVendor = gl.getParameter(debugRendererInfo.UNMASKED_VENDOR_WEBGL);
 		}
 
 		return Object.freeze(device)
@@ -526,10 +527,11 @@ out vec2 bl_UV;
 
 void main() {
 	float x = -1.0 + float((gl_VertexID & 1) << 2);
-    float y = -1.0 + float((gl_VertexID & 2) << 1);
-    gl_Position = vec4(x, y, 0, 1);
+	float y = -1.0 + float((gl_VertexID & 2) << 1);
+	gl_Position = vec4(x, y, 0, 1);
 	bl_UV = gl_Position.xy * 0.5 + 0.5;
-}`
+}
+`
 
 	// Keep the vertex shader in memory.
 	const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource);

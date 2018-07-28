@@ -58,7 +58,7 @@ export const device = function () {
 
 	let { debugRendererInfo } = extensions
 	if (debugRendererInfo) {
-		device.unmaskedRenderer = gl.getParameter(debugRendererInfo.UNMASKED_RENDERER_WEBGL),
+		device.unmaskedRenderer = gl.getParameter(debugRendererInfo.UNMASKED_RENDERER_WEBGL)
 		device.unmaskedVendor = gl.getParameter(debugRendererInfo.UNMASKED_VENDOR_WEBGL)
 	}
 
