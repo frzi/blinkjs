@@ -1,18 +1,18 @@
 /**
  * WebGL 2.0 related objects and helpers.
  */
-export const gl = function () {
+export const gl = function (): WebGL2RenderingContext {
 	const canvas = document.createElement('canvas')
 	canvas.width = canvas.height = 1
 
-	const options = {
+	const options: WebGLContextAttributes = {
 		alpha: false,
 		antialias: false,
 		depth: false,
 		stencil: false,
 	}
 
-	let gl = canvas.getContext('webgl2', options)
+	let gl = canvas.getContext('webgl2', options) as WebGL2RenderingContext
 
 	if (!gl) {
 		throw new Error('WebGL 2.0 not supported by the browser.')
@@ -27,7 +27,7 @@ export const gl = function () {
 	return gl
 }()
 
-export const extensions = function () {
+export const extensions = function (): Record<string, any> {
 	let extensions = {}
 
 	const retrieve = {
@@ -46,8 +46,8 @@ export const extensions = function () {
 	return extensions
 }()
 
-export const device = function () {
-	let device = {
+export const device = function (): Readonly<DeviceInfo> {
+	let device: DeviceInfo = {
 		glslVersion: gl.getParameter(gl.SHADING_LANGUAGE_VERSION),
 		maxColorAttachments: gl.getParameter(gl.MAX_DRAW_BUFFERS),
 		maxTextureSize: gl.getParameter(gl.MAX_TEXTURE_SIZE),

@@ -1,8 +1,14 @@
 {
     "compilerOptions": {
-
+        "allowJs": false,
+        "baseUrl": "./",
+        "experimentalDecorators": true,
+        "module": "commonjs",
+        "sourceMap": true,
+        "target": "esnext"
     },
-    "files": [
-        "index.d.ts"
+    "include": [
+        "./src/types.d.ts",
+        "./src/**/*"
     ]
 }

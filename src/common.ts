@@ -1,21 +1,52 @@
-// Buffer types.
-const type = (name, bytes, integer, unsigned) => Object.freeze({ name, bytes, integer, unsigned })
+// Move to types.d.ts?
+export type DataType = {
+	bytes: number
+	integer: boolean
+	name: string
+	unsigned: boolean
+}
 
-export const FLOAT  = type('float',  4, false, false)
-export const INT32  = type('int32',  4, true,  false)
-export const INT16  = type('int16',  2, true,  false)
-export const INT8   = type('int8',   1, true,  false)
-export const UINT32 = type('uint32', 4, true,  true)
-export const UINT16 = type('uint16', 2, true,  true)
-export const UINT8  = type('uint8',  1, true,  true)
+export type FormatInfo = {
+	bytes: number
+	format: string
+	internalFormat: 'R' | 'RG' | 'RGB' | 'RGBA'
+	inputType: string
+	integer: boolean
+	outputType: string
+	precision: 'lowp' | 'mediump' | 'highp'
+	type: string
+	unsigned: boolean
+}
+
+export type TypedArray = Float32Array
+	| Int32Array | Int16Array | Int8Array
+	| Uint32Array | Uint16Array | Uint8Array | Uint8ClampedArray
+
+export type TypedArrayConstructor = Float32ArrayConstructor
+	| Int32ArrayConstructor | Int16ArrayConstructor | Int8ArrayConstructor
+	| Uint32ArrayConstructor | Uint16ArrayConstructor | Uint8ArrayConstructor | Uint8ClampedArrayConstructor
+
+
+///
+
+const Type = (name: string, bytes: number, integer: boolean, unsigned: boolean): DataType => (
+	Object.freeze({ name, bytes, integer, unsigned })
+)
+
+export const FLOAT  = Type('float',  4, false, false)
+export const INT32  = Type('int32',  4, true,  false)
+export const INT16  = Type('int16',  2, true,  false)
+export const INT8   = Type('int8',   1, true,  false)
+export const UINT32 = Type('uint32', 4, true,  true)
+export const UINT16 = Type('uint16', 2, true,  true)
+export const UINT8  = Type('uint8',  1, true,  true)
 
 // Wrap modes for the textures.
 export const CLAMP  = 33071
 export const REPEAT = 10497
 export const MIRROR = 33648
 
-
-// TypedArray helpers.
+// Type associations.
 export const arrayConstructors = new Map([
 	[FLOAT,  Float32Array],
 	[INT32,  Int32Array],
@@ -24,7 +55,7 @@ export const arrayConstructors = new Map([
 	[UINT32, Uint32Array],
 	[UINT16, Uint16Array],
 	[UINT8,  Uint8Array],
-])
+] as [DataType, TypedArrayConstructor][])
 
 export const arrayTypes = new Map([
 	[Float32Array,      FLOAT],
@@ -35,11 +66,11 @@ export const arrayTypes = new Map([
 	[Uint16Array,       UINT16],
 	[Uint8Array,        UINT8],
 	[Uint8ClampedArray, UINT8],
-])
+] as [TypedArrayConstructor, DataType][])
 
 
 // Hands out all the types associated with a Buffer's data.
-export function formatInfo(dataType, vectorSize = 1) {
+export function formatInfo(dataType: DataType, vectorSize: number = 1): FormatInfo {
 	const { bytes, integer, unsigned } = dataType
 
 	const precision = ['lowp', 'mediump', null, 'highp'][bytes - 1]
@@ -77,12 +108,12 @@ export function formatInfo(dataType, vectorSize = 1) {
 		bytes, format, internalFormat,
 		inputType, integer, outputType,
 		precision, type, unsigned,
-	}
+	} as FormatInfo
 }
 
 
 // http://stackoverflow.com/a/16267018/4757748
-export function closestDimensions(area) {
+export function closestDimensions(area: number): [number, number] {
 	let width = Math.floor(Math.sqrt(area))
 	while (area % width && width > 1) {
 		width -= 1

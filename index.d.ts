@@ -82,14 +82,14 @@ declare namespace blink {
 		readonly data: T
 		constructor(descriptor: BufferDescriptor<T>)
 		copy(): Buffer<T>
-		delete()
+		delete(): void
 	}
 
 	class DeviceBuffer<T extends TypedArray> {
 		constructor(descriptor: BufferDescriptor<T>)
 		copy(): DeviceBuffer<T>
-		delete()
-		toDevice(data: T)
+		delete(): void
+		toDevice(data: T): void
 		toHost(data?: T): T
 		toHostAsync?(data?: T): Promise<T>
 	}
@@ -97,14 +97,22 @@ declare namespace blink {
 	/**
 	 * Kernel.
 	 */
+	interface KeyBuffer {
+		[name: string]: Buffer<TypedArray> | DeviceBuffer<TypedArray>
+	}
+
 	interface InputOutput {
-		in?: object
-		out: object
+		in?: KeyBuffer
+		out: KeyBuffer
+	}
+
+	interface Uniforms {
+		[name: string]: boolean | number | TypedArray
 	}
 
 	class Kernel {
 		constructor(io: InputOutput, source: string)
-		delete()
-		exec(uniforms?: object)
+		delete(): void
+		exec(uniforms?: Uniforms): void
 	}
 }

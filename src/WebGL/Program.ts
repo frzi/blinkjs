@@ -4,11 +4,24 @@ import vertexSource from './../shaders/quad.vert'
 // Keep the vertex shader in memory.
 const vertexShader = compileShader(gl.VERTEX_SHADER, vertexSource)
 
+interface ProgramAttribute extends WebGLActiveInfo {
+	id: number
+}
+
+interface ProgramUniform extends WebGLActiveInfo {
+	id: WebGLUniformLocation
+}
+
 /**
  * Internal (helper) class.
  */
 export class Program {
-	constructor(fragSource) {
+	public id: WebGLProgram
+
+	public readonly attributes: Dictionary<ProgramAttribute>
+	public readonly uniforms: Dictionary<ProgramUniform>
+
+	public constructor(fragSource: string) {
 		let fragShader = compileShader(gl.FRAGMENT_SHADER, fragSource)
 
 		this.id = gl.createProgram()
@@ -28,7 +41,7 @@ export class Program {
 		this.attributes = {}
 		const attribCount = gl.getProgramParameter(this.id, gl.ACTIVE_ATTRIBUTES)
 		for (let a = 0; a < attribCount; a++) {
-			let attribute = gl.getActiveAttrib(this.id, a)
+			let attribute = gl.getActiveAttrib(this.id, a) as ProgramAttribute
 			attribute.id = gl.getAttribLocation(this.id, attribute.name)
 			this.attributes[attribute.name] = attribute
 		}
@@ -36,18 +49,18 @@ export class Program {
 		this.uniforms = {}
 		const uniformCount = gl.getProgramParameter(this.id, gl.ACTIVE_UNIFORMS)
 		for (let u = 0; u < uniformCount; u++) {
-			let uniform = gl.getActiveUniform(this.id, u)
+			let uniform = gl.getActiveUniform(this.id, u) as ProgramUniform
 			uniform.id = gl.getUniformLocation(this.id, uniform.name)
 			this.uniforms[uniform.name] = uniform
 		}
 	}
 
-	delete() {
+	public delete() {
 		gl.deleteProgram(this.id)
 		delete this.id
 	}
 
-	setUniform(name, ...values) {
+	public setUniform(name: string, ...values: any[]) {
 		if (!this.uniforms[name]) {
 			// console.warn(`${name} not a valid uniform.`)
 			return
@@ -69,7 +82,7 @@ export class Program {
 	}
 }
 
-function compileShader(type, source) {
+function compileShader(type: number, source: string): WebGLProgram {
 	// Check if the shader defines glsl version.
 	if (!(/^#version 300 es/g).test(source)) {
 		source = '#version 300 es\n\r' + source

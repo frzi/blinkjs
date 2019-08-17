@@ -1,15 +1,15 @@
 {
   "name": "blink.js",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "description": "Easy GPGPU on the web, powered by WebGL 2.0.",
   "main": "dist/blink.js",
   "module": "src/index.js",
+  "types": "index.d.ts",
   "homepage": "https://github.com/frzi/blinkjs",
   "repository": "frzi/blinkjs",
   "scripts": {
-    "dev": "rollup -c --dev -w",
-    "build": "rollup -c",
-    "minify": "minify dist/blink.js --out-file dist/blink.min.js",
+    "dev": "cross-env rollup -c -w",
+    "build": "cross-env NODE_ENV=production rollup -c",
     "final": "npm run build && npm run minify",
     "prepublishOnly": "npm run final"
   },
@@ -18,13 +18,21 @@
     "compute",
     "es6",
     "gpgpu",
+    "typescript",
     "webgl"
   ],
-  "author": "frzi",
+  "author": {
+    "name": "frzi",
+    "url": "https://frzi.com"
+  },
   "license": "MIT",
   "devDependencies": {
-    "babel-minify": "^0.3.0",
-    "rollup": "^0.58.2",
-    "rollup-plugin-jscc": "^0.3.3"
+    "@types/webgl2": "0.0.5",
+    "rollup": "^1.19.4",
+    "rollup-plugin-jscc": "^1.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-replace": "^2.2.0",
+    "rollup-plugin-typescript2": "^0.22.1",
+    "terser": "^4.1.4"
   }
 }

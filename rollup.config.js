@@ -1,9 +1,11 @@
 import fs from 'fs'
 import pkg from './package.json'
-import jscc from 'rollup-plugin-jscc'
+import replace from 'rollup-plugin-replace'
+import resovle from 'rollup-plugin-node-resolve'
+import typescript from 'rollup-plugin-typescript2'
 
-const _DEVMODE = ~process.argv.indexOf('--dev') || null
-const [_MAJOR, _MINOR, _PATCH] = pkg.version.split('.')
+const DEVMODE = process.env.NODE_ENV != 'production'
+const [MAJOR, MINOR, PATCH] = pkg.version.split('.')
 
 const shader = {
 	load(file) {
@@ -17,21 +19,27 @@ const shader = {
 	}
 }
 
-const defines = {
-	_DEVMODE, 
-	_MAJOR, _MINOR, _PATCH,
-}
-
 export default {
-	input: 'src/index.js',
+	input: 'src/index.ts',
 	plugins: [
 		shader,
-		jscc({ values: defines }),
+		resolve({
+			extensions: ['.ts', '.js', '.mjs'],
+		}),
+		replace({
+			values: {
+				__DEVMODE__: JSON.stringify(DEVMODE),
+				__MAJOR__: JSON.stringify(MAJOR),
+				__MINOR__: JSON.stringify(MINOR),
+				__PATCH__: JSON.stringify(PATCH),
+			}
+		}),
+		typescript(),
 	],
 	output: {
 		file: 'dist/blink.js',
 		format: 'umd',
 		name: 'blink',
-		sourcemap: _DEVMODE
+		sourcemap: DEVMODE
 	}
 }
