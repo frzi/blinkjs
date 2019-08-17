@@ -41,6 +41,10 @@ interface DeviceInfo {
 	vendor: string
 }
 
+type GLSLPrecision = 'lowp' | 'mediump' | 'highp'
+
+type VectorSize = 1 | 2 | 4
+
 interface WebGL2RenderingContext {
 	floatExt?: WEBGL_color_buffer_float
 }

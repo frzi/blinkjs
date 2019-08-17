@@ -1,7 +1,9 @@
 import { device, gl } from './WebGL/Context'
 import { Program } from './WebGL/Program'
 import { Buffer } from './Buffer'
+import { DeviceBuffer } from './DeviceBuffer'
 import fragTemplate from './shaders/template.frag'
+import { TypedArray } from './common'
 
 /**
  * Inputs and outputs have to be defined beforehand. 
@@ -11,10 +13,32 @@ import fragTemplate from './shaders/template.frag'
  * Depending on the number of allowed color attachments, a `Kernel`
  * may have to split the number of executions in numerous steps.
  */
+type BufferDictionary = Dictionary<Buffer<TypedArray> | DeviceBuffer<TypedArray>>
+
+type KernelIO = {
+	in?: BufferDictionary
+	out: BufferDictionary
+}
+
+type OutputDescriptor = {
+	location?: number
+	outputType: string
+	precision: GLSLPrecision
+}
+
+type StepDescriptor = {
+	out: string[]
+	program: Program
+}
+
 export class Kernel {
-	constructor(io, source) {
-		this.inputs = io.in || io.input || io.inputs || {}
-		this.outputs = io.out || io.output || io.outputs
+	public inputs: BufferDictionary
+	public outputs: BufferDictionary
+	public steps: Set<StepDescriptor>
+
+	constructor(io: KernelIO, source: string) {
+		this.inputs = io.in || {}
+		this.outputs = io.out
 
 		if (!this.outputs || !Object.values(this.outputs).length) {
 			throw new Error(`At least 1 output is required.`)
@@ -45,11 +69,12 @@ export class Kernel {
 		const maxOutputs = device.maxColorAttachments
 		const outputNames = Object.keys(this.outputs)
 		const outputGroupCount = Math.ceil(outputNames.length / maxOutputs)
-		let outputDescriptors = []
+		let outputDescriptors = [] as Dictionary<OutputDescriptor>[]
 		
 		let groupStartIndex = 0
 		for (let a = 0; a < outputGroupCount; a++) {
-			let descriptors = {}
+			let descriptors: Dictionary<OutputDescriptor> = {} 
+
 			for (const [i, name] of outputNames.entries()) {
 				const { outputType, precision } = this.outputs[name].formatInfo
 				descriptors[name] = { outputType, precision }
@@ -67,7 +92,7 @@ export class Kernel {
 			const shaderSource = prepareFragmentShader(this.inputs, descriptors, source)
 			let program = new Program(shaderSource)
 
-			let out = []
+			let out: string[] = []
 			for (const [name, descriptor] of Object.entries(descriptors)) {
 				if (descriptor.location !== undefined) {
 					out.push(name)
@@ -87,7 +112,7 @@ export class Kernel {
 		delete this.steps
 	}
 
-	exec(uniforms = {}) {
+	exec(uniforms: Dictionary<boolean | number | TypedArray> = {}) {
 		// Check dimensions.
 		let size = []
 		for (const output of Object.values(this.outputs)) {
@@ -135,14 +160,14 @@ export class Kernel {
 				program.setUniform(name, index)
 			}
 
-			gl.drawBuffers(step.out.map((_, i) => gl.COLOR_ATTACHMENT0 + i))
+			gl.drawBuffers(step.out.map((_: any, i: number) => gl.COLOR_ATTACHMENT0 + i))
 			gl.drawArrays(gl.TRIANGLES, 0, 3)
 
 			// Unpacking time. But only for `Buffer`s.
 			for (const [index, name] of step.out.entries()) {
 				const buffer = this.outputs[name]
 				if (buffer instanceof Buffer) {
-					const { bytes, format, type } = buffer.formatInfo
+					const { format, type } = buffer.formatInfo
 					gl.readBuffer(gl.COLOR_ATTACHMENT0 + index)
 					gl.readPixels(0, 0, size[0], size[1], gl[format], gl[type], buffer.data, 0)
 				}
@@ -163,7 +188,7 @@ export class Kernel {
 }
 
 
-function prepareFragmentShader(inputs, outputDescriptors, source) {
+function prepareFragmentShader(inputs: BufferDictionary, outputDescriptors: Dictionary<OutputDescriptor>, source: string): string {
 	let uniforms = Object.entries(inputs).map(([name, buffer]) => {
 		const { inputType, precision } = buffer.formatInfo
 		return `uniform ${precision} ${inputType} ${name};`

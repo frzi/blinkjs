@@ -1,8 +1,16 @@
-import * as common from './common'
 import { device, extensions } from './WebGL/Context'
 import { Texture } from './WebGL/Texture'
-
-import { readablesMap, writablesMap } from './Buffer'
+import {
+	GenericBuffer,
+	BufferDescriptor, BufferDescriptorAlloc, BufferDescriptorData,
+	readablesMap, writablesMap
+} from './Buffer'
+import { 
+	DataType, TypedArray,
+	arrayConstructors, arrayTypes,
+	formatInfo, closestDimensions,
+	FLOAT, CLAMP, FormatInfo,
+} from './common'
 
 /**
  * The `DeviceBuffer` only allocates memory on the device. Memory is
@@ -13,16 +21,26 @@ import { readablesMap, writablesMap } from './Buffer'
  *
  * Memory from the host can be copied to the device and vice versa.
  */
-export class DeviceBuffer {
-	constructor({alloc, data, type = common.FLOAT, vector = 1, wrap = common.CLAMP}) {
-		this.vector = Math.min(Math.max(vector, 1), 4)
-		if (this.vector == 3) {
+export class DeviceBuffer<T extends TypedArray> implements GenericBuffer {
+	public data: T
+	public dimensions: [number, number]
+	public readonly size: number
+	public readonly type: DataType
+	public vector: VectorSize
+	public wrap: [number, number]
+
+	constructor(descriptor: BufferDescriptor<T>) {
+		let { type, vector, wrap } = descriptor
+		let { alloc, data } = descriptor as BufferDescriptorAlloc & BufferDescriptorData<T>
+
+		this.vector = Math.min(Math.max(vector, 1), 4) as VectorSize
+		if (<number>this.vector == 3) {
 			console.warn('Vector size of 3 not supported. Choosing vector size 4.')
 			this.vector = 4
 		}
 
 		this.size = alloc || data.length
-		this.dimensions = common.closestDimensions(this.size / this.vector)
+		this.dimensions = closestDimensions(this.size / this.vector)
 
 		// Wrap mode for S and T.
 		this.wrap = Array.isArray(wrap) ? wrap : [wrap, wrap]
@@ -34,7 +52,7 @@ export class DeviceBuffer {
 		
 		let associatedType = type
 		if (data) {
-			for (const [constructor, type] of common.arrayTypes) {
+			for (const [constructor, type] of arrayTypes) {
 				if (data instanceof constructor) {
 					associatedType = type
 					break
@@ -48,7 +66,7 @@ export class DeviceBuffer {
 
 		if (data) {
 			if (data.constructor == Uint8ClampedArray) {
-				data = new Uint8Array(data.buffer)
+				data = new Uint8Array(data.buffer) as T
 			}
 			texture.upload(data)
 		}
@@ -61,8 +79,10 @@ export class DeviceBuffer {
 		}
 	}
 
-	copy() {
-		let copyReadable = this._readable.copy()
+	copy(): DeviceBuffer<TypedArray> {
+		return null
+		// TODO
+		/*let copyReadable = this._readable.copy()
 		let copyBuffer = new DeviceBuffer({
 			alloc: this.size,
 			type: this.type,
@@ -71,14 +91,14 @@ export class DeviceBuffer {
 
 		copyBuffer._readable.delete()
 		copyBuffer._readable = copyReadable
-		return copyBuffer
+		return copyBuffer*/
 	}
 
-	toDevice(data) {
+	toDevice(data: T) {
 		this._getReadable().upload(data)
 	}
 
-	toHost(data) {
+	toHost(data: T) {
 		data = this._prepareLocalData(data)
 		this._getReadable().read(data)
 		return data
@@ -87,10 +107,10 @@ export class DeviceBuffer {
 	/// Private methods / properties.
 
 	get formatInfo() {
-		return common.formatInfo(this.type, this.vector)
+		return formatInfo(this.type, this.vector)
 	}
 
-	_getReadable(forceCreate = false) {
+	_getReadable(forceCreate = false): Texture {
 		if (!readablesMap.has(this) && forceCreate) {
 			const { bytes, internalFormat, format, type } = this.formatInfo
 			const [width, height] = this.dimensions
@@ -99,7 +119,7 @@ export class DeviceBuffer {
 		return readablesMap.get(this)
 	}
 
-	_getWritable(forceCreate = false) {
+	_getWritable(forceCreate = false): Texture {
 		if (!writablesMap.has(this) && forceCreate) {
 			writablesMap.set(this, this._getReadable(true).copy())
 		}
@@ -119,27 +139,18 @@ export class DeviceBuffer {
 		}
 	}
 
-	_prepareLocalData(data) {
+	private _prepareLocalData(data: T): T {
 		if (!data) {
-			const typedArray = common.arrayConstructors.get(this.type)
-			data = new typedArray(this.size)
+			const typedArray = arrayConstructors.get(this.type)
+			data = new typedArray(this.size) as T
 		}
 
 		// Cast Uint8ClampedArray to Uint8Array.
 		let ref = data
 		if (data instanceof Uint8ClampedArray) {
-			ref = new Uint8Array(data.buffer)
+			ref = new Uint8Array(data.buffer) as T
 		}
 
 		return ref
-	}
-}
-
-/// Extension specific methods.
-
-if (extensions.getBufferSubDataAsync) {
-	DeviceBuffer.prototype.toHostAsync = function (data) {
-		data = this._prepareLocalData(data)
-		return this._getReadable().readAsync(data)
 	}
 }

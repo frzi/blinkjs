@@ -26,7 +26,6 @@ export type TypedArrayConstructor = Float32ArrayConstructor
 	| Int32ArrayConstructor | Int16ArrayConstructor | Int8ArrayConstructor
 	| Uint32ArrayConstructor | Uint16ArrayConstructor | Uint8ArrayConstructor | Uint8ClampedArrayConstructor
 
-
 ///
 
 const Type = (name: string, bytes: number, integer: boolean, unsigned: boolean): DataType => (

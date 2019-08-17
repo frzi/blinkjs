@@ -1,6 +1,11 @@
-import * as common from './common'
 import { device } from './WebGL/Context'
 import { Texture } from './WebGL/Texture'
+import { 
+	DataType, TypedArray,
+	arrayConstructors, arrayTypes,
+	formatInfo, closestDimensions,
+	FLOAT, CLAMP, FormatInfo,
+} from './common'
 
 /**
  * The `Buffer` object allocates memory on the host. Once the `Buffer`
@@ -18,19 +23,52 @@ import { Texture } from './WebGL/Texture'
  * the `DeviceBuffer` object.
  */
 
-export let readablesMap = new WeakMap()
-export let writablesMap = new WeakMap()
+export interface GenericBuffer {
+	delete(): void
+	readonly formatInfo: FormatInfo
+}
 
-export class Buffer {
-	constructor({alloc, data, type = common.FLOAT, vector = 1, wrap = common.CLAMP}) {
-		this.vector = Math.min(Math.max(vector, 1), 4)
-		if (this.vector == 3) {
+export let readablesMap = new WeakMap<GenericBuffer, Texture>()
+export let writablesMap = new WeakMap<GenericBuffer, Texture>()
+
+//
+
+interface BufferDescriptorBase {
+	type?: DataType
+	vector?: VectorSize
+	wrap?: number | [number, number]
+}
+
+export interface BufferDescriptorAlloc extends BufferDescriptorBase {
+	alloc: number
+}
+
+export interface BufferDescriptorData<T extends TypedArray> extends BufferDescriptorBase {
+	data: T
+}
+
+export type BufferDescriptor<T extends TypedArray> = BufferDescriptorAlloc | BufferDescriptorData<T>
+
+//
+
+export class Buffer<T extends TypedArray> implements GenericBuffer {
+	public data: T
+	public dimensions: [number, number]
+	public vector: VectorSize
+	public wrap: [number, number]
+
+	constructor(descriptor: BufferDescriptor<T>) {
+		let { type, vector, wrap } = descriptor
+		let { alloc, data } = descriptor as BufferDescriptorAlloc & BufferDescriptorData<T>
+
+		this.vector = Math.min(Math.max(vector, 1), 4) as VectorSize
+		if (<number>this.vector == 3) {
 			console.warn('Vector size of 3 not supported. Choosing vector size 4.')
 			this.vector = 4
 		}
 
 		let size = alloc || data.length
-		this.dimensions = common.closestDimensions(size / this.vector)
+		this.dimensions = closestDimensions(size / this.vector)
 
 		// Wrap mode for S and T.
 		this.wrap = Array.isArray(wrap) ? wrap : [wrap, wrap]
@@ -40,18 +78,17 @@ export class Buffer {
 			throw new Error('Buffer size exceeds device limit.')
 		}
 
-		if (data != null)
-		{
+		if (data != null) {
 			if (data instanceof Uint8ClampedArray) {
-				this.data = new Uint8Array(data.buffer)
+				this.data = new Uint8Array(data.buffer) as T
 			}
 			else {
 				this.data = data
 			}
 		}
 		else if (alloc != null) {
-			const typedArray = common.arrayConstructors.get(type)
-			this.data = new typedArray(size)
+			const typedArray = arrayConstructors.get(type)
+			this.data = new typedArray(size) as T
 		}
 		else {
 			throw new Error('Must provide args: data or alloc.');
@@ -63,25 +100,25 @@ export class Buffer {
 		this._finish()
 	}
 
-	copy() {
+	copy(): Buffer<TypedArray> {
 		return new Buffer({
-			data: new this.data.constructor(this.data),
+			data: this.data.slice(),
 			vector: this.vector,
 		})
 	}
 
 	/// Private methods / properties.
 
-	get formatInfo() {
-		for (const [constructor, type] of common.arrayTypes) {
+	get formatInfo(): FormatInfo {
+		for (const [constructor, type] of arrayTypes) {
 			if (this.data instanceof constructor) {
-				return common.formatInfo(type, this.vector)
+				return formatInfo(type, this.vector)
 			}
 		}
 		return null
 	}
 
-	_getReadable(forceCreate = false) {
+	_getReadable(forceCreate = false): Texture {
 		if (!readablesMap.has(this) && forceCreate) {
 			const readable = textureForBuffer(this, this.data)	
 			readablesMap.set(this, readable)
@@ -89,7 +126,7 @@ export class Buffer {
 		return readablesMap.get(this)
 	}
 
-	_getWritable(forceCreate = false) {
+	_getWritable(forceCreate = false): Texture {
 		if (!writablesMap.has(this) && forceCreate) {
 			const writable = textureForBuffer(this, this.data)
 			writablesMap.set(this, writable)
@@ -112,7 +149,7 @@ export class Buffer {
 	}
 }
 
-function textureForBuffer(buffer, data = null) {
+function textureForBuffer(buffer: Buffer<TypedArray>, data: TypedArray = null): Texture {
 	const { bytes, internalFormat, format, type } = buffer.formatInfo
 	const [width, height] = buffer.dimensions
 	return new Texture(internalFormat, width, height, format, type, data, bytes, ...buffer.wrap)

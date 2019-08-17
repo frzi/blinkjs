@@ -8,11 +8,11 @@ export class Texture {
 	public id: WebGLTexture
 
 	constructor(
-		public readonly internalFormat: number,
+		public readonly internalFormat: string,
 		public readonly width: number,
 		public readonly height: number,
-		public readonly format: number,
-		public readonly type: number,
+		public readonly format: string,
+		public readonly type: string,
 		data: TypedArray,
 		public readonly alignment: number,
 		public readonly wrapS?: number,
