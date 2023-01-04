@@ -23,7 +23,7 @@
   "author": "frzi",
   "license": "MIT",
   "devDependencies": {
-    "babel-minify": "^0.3.0",
+    "babel-minify": "^0.5.2",
     "rollup": "^0.58.2",
     "rollup-plugin-jscc": "^0.3.3"
   }
